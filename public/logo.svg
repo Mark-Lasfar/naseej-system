@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Carpet/Textile Icon -->
+  <rect x="5" y="10" width="40" height="40" rx="8" fill="url(#logoGrad)"/>
+  <path d="M15 20 L35 20 M15 30 L35 30 M15 40 L35 40" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <path d="M20 15 L20 45 M30 15 L30 45" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  
+  <!-- Text -->
+  <text x="55" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#logoGrad)">Naseej</text>
+  <text x="55" y="52" font-family="Arial, sans-serif" font-size="10" fill="#94a3b8" letter-spacing="2">CARPETS &amp; TEXTILES</text>
+</svg>
