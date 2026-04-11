@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Mark-Lasfar/naseej-system/main/frontend/public/logo-dark.svg" alt="Naseej Logo" width="180"/>
+  <img src="https://raw.githubusercontent.com/Mark-Lasfar/naseej-system/e36045a580c7989c6490e19f87edfbca814b9fda/public/logo-dark.svg" alt="Naseej Logo" width="180"/>
   <h1 align="center">Naseej | Integrated Management System</h1>
   <p align="center">
     <strong>A complete digital ecosystem for modern carpets and textiles businesses</strong>
