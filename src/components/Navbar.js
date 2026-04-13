@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   FaHome, FaBox, FaUsers, FaFileInvoice, FaSignOutAlt, FaUser, 
   FaShoppingCart, FaTruck, FaStore, FaListAlt, FaMoneyBillWave,
   FaStoreAlt, FaHeart, FaCog, FaChartLine, FaNewspaper,
-  FaSignInAlt,FaComments
+  FaSignInAlt, FaComments, FaBars, FaTimes,FaPlug,FaIndustry
 } from 'react-icons/fa';
 
 const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // روابط عامة (تظهر للجميع - حتى غير المسجلين)
   const publicNavItems = [
@@ -21,8 +22,9 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
     { path: '/', label: 'Home', icon: <FaHome /> },
     { path: '/feed', label: 'Feed', icon: <FaNewspaper /> },
     { path: '/chat', label: 'Messages', icon: <FaComments /> },
-
     { path: '/my-orders', label: 'My Orders', icon: <FaListAlt /> },
+
+
   ];
 
   // روابط للمدير فقط (Admin)
@@ -33,6 +35,8 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
     { path: '/invoices', label: 'Invoices', icon: <FaFileInvoice /> },
     { path: '/admin-orders', label: 'Orders Mgmt', icon: <FaListAlt /> },
     { path: '/design-studio', label: 'AI Design', icon: <FaCog /> },
+    { path: '/production-partner', label: 'Production', icon: <FaIndustry /> },
+
     { path: '/material-library', label: 'Materials', icon: <FaBox /> },
   ];
 
@@ -42,23 +46,30 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
     { path: '/seller/products', label: 'My Products', icon: <FaBox /> },
     { path: '/seller/orders', label: 'Store Orders', icon: <FaListAlt /> },
     { path: '/seller/payouts', label: 'Payouts', icon: <FaMoneyBillWave /> },
+    { path: '/seller/profit-analytics', label: 'Profit Analytics', icon: <FaChartLine /> }, // ✅ أضف هذا
+    { path: '/seller/integrations', label: 'Integrations', icon: <FaPlug /> },
     { path: '/seller/store-settings', label: 'Store Settings', icon: <FaCog /> },
   ];
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
+  // إغلاق القائمة عند النقر على رابط
+  const handleLinkClick = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
-          {/* Logo - للجميع */}
-          <Link to={user ? "/" : "/shop"} className="flex items-center gap-2 group">
+          {/* Logo */}
+          <Link to={user ? "/" : "/shop"} className="flex items-center gap-2 group" onClick={handleLinkClick}>
             <img 
               src="/logo-icon.svg" 
               alt="Naseej Logo" 
               className="w-10 h-10 transition-transform group-hover:scale-105"
             />
-            <div className="hidden sm:block">
+            <div className="hidden xs:block">
               <div className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Naseej
               </div>
@@ -66,9 +77,9 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
             </div>
           </Link>
 
-          {/* Navigation Links - Desktop */}
-          <div className="hidden md:flex gap-4">
-            {/* Public Links (تظهر للجميع) */}
+          {/* Desktop Navigation - يظهر فقط على الشاشات الكبيرة */}
+          <div className="hidden lg:flex gap-4">
+            {/* Public Links */}
             {publicNavItems.map((item) => (
               <Link
                 key={item.path}
@@ -84,7 +95,7 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
               </Link>
             ))}
             
-            {/* Private Links (تظهر فقط للمستخدمين المسجلين) */}
+            {/* Private Links للمستخدمين المسجلين */}
             {user && privateNavItems.map((item) => (
               <Link
                 key={item.path}
@@ -100,7 +111,7 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
               </Link>
             ))}
             
-            {/* Seller Links (if user is seller or admin) */}
+            {/* Seller Links */}
             {user && (user?.role === 'seller' || user?.role === 'admin') && (
               <div className="relative group">
                 <button className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
@@ -135,15 +146,15 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
-            {/* Wishlist Icon (للمستخدمين فقط) */}
+            {/* Wishlist Icon */}
             {user && (
-              <Link to="/wishlist" className="relative">
+              <Link to="/wishlist" className="relative hover:scale-105 transition" onClick={handleLinkClick}>
                 <FaHeart className="text-gray-600 text-xl hover:text-red-500 transition" />
               </Link>
             )}
             
-            {/* Cart Icon (للجميع) */}
-            <Link to="/cart" className="relative">
+            {/* Cart Icon */}
+            <Link to="/cart" className="relative hover:scale-105 transition" onClick={handleLinkClick}>
               <FaShoppingCart className="text-gray-600 text-xl hover:text-blue-600 transition" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -165,18 +176,18 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                   </div>
                 </div>
                 <div className="absolute top-full right-0 mt-1 bg-white shadow-lg rounded-lg w-48 py-2 z-50 hidden group-hover:block">
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</Link>
-                  <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Wishlist</Link>
+                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>My Profile</Link>
+                  <Link to="/wishlist" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>Wishlist</Link>
                   <hr className="my-1" />
                   {user?.role === 'seller' && (
-                    <Link to="/seller/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Seller Dashboard</Link>
+                    <Link to="/seller/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>Seller Dashboard</Link>
                   )}
                   {user?.role === 'admin' && (
-                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Panel</Link>
+                    <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>Admin Panel</Link>
                   )}
                   <hr className="my-1" />
                   <button
-                    onClick={onLogout}
+                    onClick={() => { onLogout(); handleLinkClick(); }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                   >
                     <FaSignOutAlt className="inline mr-2" /> Logout
@@ -191,49 +202,99 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                 <FaSignInAlt /> Login
               </button>
             )}
+
+            {/* Mobile Menu Button - Hamburger Icon */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+            >
+              {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex overflow-x-auto gap-2 pb-2">
-          {/* Public Links للجميع */}
-          {publicNavItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition whitespace-nowrap ${
-                isActive(item.path)
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
-          
-          {/* Private Links للمستخدمين المسجلين فقط */}
-          {user && privateNavItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm transition whitespace-nowrap ${
-                isActive(item.path)
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
-          
-          {user?.role === 'seller' && (
-            <Link to="/seller/dashboard" className="flex items-center gap-1 px-3 py-1 rounded-lg text-sm text-gray-600 whitespace-nowrap">
-              <FaStore /> Seller
-            </Link>
-          )}
-        </div>
+        {/* Mobile Menu - يظهر عند الضغط على الـ Hamburger */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden py-4 border-t bg-white">
+            <div className="flex flex-col space-y-2">
+              {/* Public Links */}
+              <div className="text-xs text-gray-400 px-3 pt-2">MAIN MENU</div>
+              {publicNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={handleLinkClick}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    isActive(item.path)
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+              
+              {/* Private Links (للمستخدمين المسجلين فقط) */}
+              {user && (
+                <>
+                  <div className="text-xs text-gray-400 px-3 pt-4">PERSONAL</div>
+                  {privateNavItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                        isActive(item.path)
+                          ? 'bg-blue-50 text-blue-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
+              
+              {/* Seller Links */}
+              {user && (user?.role === 'seller' || user?.role === 'admin') && (
+                <>
+                  <div className="text-xs text-gray-400 px-3 pt-4">SELLER</div>
+                  {sellerNavItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
+              
+              {/* Admin Links */}
+              {user?.role === 'admin' && (
+                <>
+                  <div className="text-xs text-gray-400 px-3 pt-4">ADMIN</div>
+                  {adminNavItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

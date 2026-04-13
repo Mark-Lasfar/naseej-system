@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaStore, FaEdit, FaSave, FaPlusCircle } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const Profile = () => {
   const [user, setUser] = useState(null);

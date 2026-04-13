@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { 
-  FaPlus, FaEdit, FaTrash, FaEye, FaUpload, FaVideo, 
+import {
+  FaPlus, FaEdit, FaTrash, FaEye, FaUpload, FaVideo,
   FaTimes, FaImage, FaCloudUploadAlt, FaLink, FaYoutube,
   FaGripVertical, FaCheck, FaSpinner, FaCloud, FaTrashAlt
 } from 'react-icons/fa';
@@ -21,18 +21,18 @@ const compressImageFile = async (file) => {
     fileType: 'image/jpeg', // تحويل إلى JPEG
     quality: 0.7            // جودة 70%
   };
-  
+
   try {
     // إذا كان حجم الملف أقل من 500KB، لا نضغطه
     if (file.size < 500 * 1024) {
       console.log(`📦 ملف صغير: ${(file.size / 1024).toFixed(0)}KB, لن يتم ضغطه`);
       return file;
     }
-    
+
     const compressedFile = await imageCompression(file, options);
     const savedPercent = ((1 - compressedFile.size / file.size) * 100).toFixed(0);
     console.log(`✅ ضغط: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (توفير ${savedPercent}%)`);
-    
+
     return compressedFile;
   } catch (error) {
     console.error('❌ خطأ في ضغط الصورة:', error);
@@ -60,7 +60,7 @@ const SellerProducts = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
     name: '', category: 'carpet', subcategory: '', material: '', size: '', color: '',
-    price: '', oldPrice: '', quantity: '', imageUrl: '', images: [], videoUrl: '',
+    price: '', oldPrice: '', costPrice: '', quantity: '', imageUrl: '', images: [], videoUrl: '',
     description: '', features: [], tags: [], discount: 0
   });
   const [featuresInput, setFeaturesInput] = useState('');
@@ -86,7 +86,7 @@ const SellerProducts = () => {
   // دالة رفع الملفات مع ضغط الصور
   const uploadFiles = async (files, type = 'image') => {
     if (!files || files.length === 0) return;
-    
+
     setUploading(true);
     const uploadedUrls = [];
     const uploadedData = [];
@@ -97,7 +97,7 @@ const SellerProducts = () => {
     for (const file of files) {
       let fileToUpload = file;
       totalOriginalSize += file.size;
-      
+
       // ضغط الصور فقط
       if (type === 'image' && file.type.startsWith('image/')) {
         const compressed = await compressImageFile(file);
@@ -113,7 +113,7 @@ const SellerProducts = () => {
           return;
         }
       }
-      
+
       const formDataFile = new FormData();
       const endpoint = type === 'video' ? '/upload/video' : '/upload';
       formDataFile.append(type, fileToUpload);
@@ -138,7 +138,7 @@ const SellerProducts = () => {
         toast.error(`Failed to upload ${file.name}: ${error.response?.data?.error || error.message}`);
       }
     }
-    
+
     // إظهار ملخص الضغط
     if (compressedCount > 0) {
       const savedMB = ((totalOriginalSize - totalCompressedSize) / 1024 / 1024).toFixed(2);
@@ -150,12 +150,12 @@ const SellerProducts = () => {
         ...prev,
         images: [...prev.images, ...uploadedUrls]
       }));
-      
+
       setImagePreviews(prev => [
         ...prev,
         ...uploadedUrls.map(url => url)
       ]);
-      
+
       setUploadedFiles(prev => [...prev, ...uploadedData]);
       toast.success(`✅ تم رفع ${uploadedUrls.length} صورة بنجاح`);
     }
@@ -169,15 +169,15 @@ const SellerProducts = () => {
       // استخراج publicId من رابط Cloudinary
       const publicId = imageUrl.split('/').slice(-2).join('/').split('.')[0];
       await axios.delete(`${API_URL}/upload/${publicId}`);
-      
+
       const newImages = [...formData.images];
       newImages.splice(index, 1);
       setFormData({ ...formData, images: newImages });
-      
+
       const newPreviews = [...imagePreviews];
       newPreviews.splice(index, 1);
       setImagePreviews(newPreviews);
-      
+
       toast.success('✅ Image deleted');
     } catch (error) {
       toast.error('Failed to delete image');
@@ -190,10 +190,10 @@ const SellerProducts = () => {
         toast.error(`${file.file.name}: ${file.errors[0].message}`);
       });
     }
-    
+
     const imageFiles = acceptedFiles.filter(file => file.type.startsWith('image/'));
     const videoFiles = acceptedFiles.filter(file => file.type.startsWith('video/'));
-    
+
     if (imageFiles.length > 0) {
       uploadFiles(imageFiles, 'image');
     }
@@ -239,10 +239,10 @@ const SellerProducts = () => {
   };
 
   const resetForm = () => {
-    setFormData({ 
+    setFormData({
       name: '', category: 'carpet', subcategory: '', material: '', size: '', color: '',
-      price: '', oldPrice: '', quantity: '', imageUrl: '', images: [], videoUrl: '',
-      description: '', features: [], tags: [], discount: 0 
+      price: '', oldPrice: '', quantity: '', costPrice: '', imageUrl: '', images: [], videoUrl: '',
+      description: '', features: [], tags: [], discount: 0
     });
     setImagePreviews([]);
     setUploadedFiles([]);
@@ -288,20 +288,22 @@ const SellerProducts = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">My Products</h1>
-        <button 
-          onClick={() => { resetForm(); setShowModal(true); }} 
+        <button
+          onClick={() => { resetForm(); setShowModal(true); }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
         >
           <FaPlus /> Add Product
         </button>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left">Product</th>
               <th className="px-6 py-3 text-left">Price</th>
+              <th className="px-6 py-3 text-left">Cost</th>
+              <th className="px-6 py-3 text-left">Profit</th>
               <th className="px-6 py-3 text-left">Stock</th>
               <th className="px-6 py-3 text-left">Images</th>
               <th className="px-6 py-3 text-left">Status</th>
@@ -309,55 +311,83 @@ const SellerProducts = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map(p => (
-              <tr key={p._id} className="border-t hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-medium">{p.name}</p>
-                    <p className="text-sm text-gray-500">{p.material}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4">{p.price.toLocaleString()} EGP</td>
-                <td className="px-6 py-4">{p.quantity}</td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-1">
-                    {p.images?.slice(0, 3).map((img, idx) => (
-                      <img key={idx} src={img} alt="" className="w-8 h-8 rounded object-cover" />
-                    ))}
-                    {(p.images?.length || 0) > 3 && (
-                      <span className="text-xs text-gray-500">+{p.images.length - 3}</span>
+            {products.map(p => {
+              // حساب الربح وهامش الربح
+              const profit = (p.price || 0) - (p.costPrice || 0);
+              const profitMargin = p.price > 0 ? (profit / p.price * 100).toFixed(1) : 0;
+
+              return (
+                <tr key={p._id} className="border-t hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div>
+                      <p className="font-medium">{p.name}</p>
+                      <p className="text-sm text-gray-500">{p.material}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">{p.price?.toLocaleString()} EGP</td>
+
+                  {/* ✅ عمود Cost (سعر الشراء) */}
+                  <td className="px-6 py-4">
+                    {p.costPrice ? `${p.costPrice.toLocaleString()} EGP` : '—'}
+                  </td>
+
+                  {/* ✅ عمود Profit (الربح) */}
+                  <td className="px-6 py-4">
+                    {p.costPrice ? (
+                      <>
+                        <span className={profit > 0 ? 'text-green-600 font-semibold' : profit < 0 ? 'text-red-600' : 'text-gray-500'}>
+                          {profit > 0 ? '+' : ''}{profit.toLocaleString()} EGP
+                        </span>
+                        <span className={`text-xs block ${profitMargin > 20 ? 'text-green-600' : profitMargin > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                          ({profitMargin}% margin)
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-gray-400">—</span>
                     )}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs ${p.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                    {p.status || 'pending'}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => { 
-                        setEditingProduct(p); 
-                        setFormData(p); 
-                        setImagePreviews(p.images || []); 
-                        setShowModal(true); 
-                      }} 
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button onClick={() => handleDelete(p._id)} className="text-red-600 hover:text-red-800">
-                      <FaTrash />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+
+                  <td className="px-6 py-4">{p.quantity}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-1">
+                      {p.images?.slice(0, 3).map((img, idx) => (
+                        <img key={idx} src={img} alt="" className="w-8 h-8 rounded object-cover" />
+                      ))}
+                      {(p.images?.length || 0) > 3 && (
+                        <span className="text-xs text-gray-500">+{p.images.length - 3}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-xs ${p.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {p.status || 'pending'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingProduct(p);
+                          setFormData(p);
+                          setImagePreviews(p.images || []);
+                          setShowModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button onClick={() => handleDelete(p._id)} className="text-red-600 hover:text-red-800">
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
-      
+
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -367,7 +397,7 @@ const SellerProducts = () => {
                 <FaTimes size={20} />
               </button>
             </div>
-            
+
             <div className="flex border-b px-6">
               <button
                 onClick={() => setActiveTab('basic')}
@@ -382,28 +412,28 @@ const SellerProducts = () => {
                 Media (Images & Video)
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {activeTab === 'basic' && (
                 <div className="space-y-4">
                   {/* Basic Info Fields - same as before */}
                   <div>
                     <label className="block text-sm font-medium mb-1">Product Name *</label>
-                    <input 
-                      type="text" 
-                      value={formData.name} 
-                      onChange={e => setFormData({...formData, name: e.target.value})} 
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" 
-                      required 
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium mb-1">Category *</label>
-                      <select 
-                        value={formData.category} 
-                        onChange={e => setFormData({...formData, category: e.target.value})} 
+                      <select
+                        value={formData.category}
+                        onChange={e => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-3 py-2 border rounded-lg"
                       >
                         <option value="carpet">Carpet</option>
@@ -412,114 +442,145 @@ const SellerProducts = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Subcategory</label>
-                      <input 
-                        type="text" 
-                        value={formData.subcategory} 
-                        onChange={e => setFormData({...formData, subcategory: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        placeholder="e.g., Persian, Modern" 
+                      <input
+                        type="text"
+                        value={formData.subcategory}
+                        onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        placeholder="e.g., Persian, Modern"
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium mb-1">Material</label>
-                      <input 
-                        type="text" 
-                        value={formData.material} 
-                        onChange={e => setFormData({...formData, material: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        placeholder="Wool, Silk, Cotton" 
+                      <input
+                        type="text"
+                        value={formData.material}
+                        onChange={e => setFormData({ ...formData, material: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        placeholder="Wool, Silk, Cotton"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Size</label>
-                      <input 
-                        type="text" 
-                        value={formData.size} 
-                        onChange={e => setFormData({...formData, size: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        placeholder="e.g., 2x3 m" 
+                      <input
+                        type="text"
+                        value={formData.size}
+                        onChange={e => setFormData({ ...formData, size: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        placeholder="e.g., 2x3 m"
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="block text-sm font-medium mb-1">Price (EGP) *</label>
-                      <input 
-                        type="number" 
-                        value={formData.price} 
-                        onChange={e => setFormData({...formData, price: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        required 
+                      <input
+                        type="number"
+                        value={formData.price}
+                        onChange={e => setFormData({ ...formData, price: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        required
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Old Price</label>
-                      <input 
-                        type="number" 
-                        value={formData.oldPrice} 
-                        onChange={e => setFormData({...formData, oldPrice: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
+                      <input
+                        type="number"
+                        value={formData.oldPrice}
+                        onChange={e => setFormData({ ...formData, oldPrice: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Discount %</label>
-                      <input 
-                        type="number" 
-                        value={formData.discount} 
-                        onChange={e => setFormData({...formData, discount: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
+                      <input
+                        type="number"
+                        value={formData.discount}
+                        onChange={e => setFormData({ ...formData, discount: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
                       />
                     </div>
                   </div>
-                  
+
+                  {/* Cost Price Section - أضف هذا القسم */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Cost Price (EGP)
+                        <span className="text-xs text-gray-400 ml-1">(Your purchase price)</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.costPrice || ''}
+                        onChange={e => setFormData({ ...formData, costPrice: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="How much did it cost you?"
+                        step="0.01"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Expected profit: {(formData.price && formData.costPrice ? (parseFloat(formData.price) - parseFloat(formData.costPrice)).toLocaleString() : '0')} EGP
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center bg-gray-50 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">Profit Margin</p>
+                        <p className={`text-lg font-bold ${formData.price > formData.costPrice ? 'text-green-600' : formData.price < formData.costPrice ? 'text-red-600' : 'text-gray-600'}`}>
+                          {formData.costPrice && formData.price
+                            ? ((parseFloat(formData.price) - parseFloat(formData.costPrice)) / parseFloat(formData.price) * 100).toFixed(1)
+                            : '0'}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium mb-1">Quantity *</label>
-                      <input 
-                        type="number" 
-                        value={formData.quantity} 
-                        onChange={e => setFormData({...formData, quantity: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        required 
+                      <input
+                        type="number"
+                        value={formData.quantity}
+                        onChange={e => setFormData({ ...formData, quantity: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        required
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Color</label>
-                      <input 
-                        type="text" 
-                        value={formData.color} 
-                        onChange={e => setFormData({...formData, color: e.target.value})} 
-                        className="w-full px-3 py-2 border rounded-lg" 
-                        placeholder="Red, Blue, Beige" 
+                      <input
+                        type="text"
+                        value={formData.color}
+                        onChange={e => setFormData({ ...formData, color: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg"
+                        placeholder="Red, Blue, Beige"
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Description</label>
-                    <textarea 
-                      value={formData.description} 
-                      onChange={e => setFormData({...formData, description: e.target.value})} 
-                      className="w-full px-3 py-2 border rounded-lg" 
-                      rows="4" 
-                      placeholder="Detailed description of the product..." 
+                    <textarea
+                      value={formData.description}
+                      onChange={e => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      rows="4"
+                      placeholder="Detailed description of the product..."
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Features</label>
                     <div className="flex gap-2 mb-2">
-                      <input 
-                        type="text" 
-                        value={featuresInput} 
-                        onChange={e => setFeaturesInput(e.target.value)} 
-                        className="flex-1 px-3 py-2 border rounded-lg" 
-                        placeholder="e.g., Handmade, Eco-friendly" 
-                        onKeyPress={e => e.key === 'Enter' && addFeature()} 
+                      <input
+                        type="text"
+                        value={featuresInput}
+                        onChange={e => setFeaturesInput(e.target.value)}
+                        className="flex-1 px-3 py-2 border rounded-lg"
+                        placeholder="e.g., Handmade, Eco-friendly"
+                        onKeyPress={e => e.key === 'Enter' && addFeature()}
                       />
                       <button type="button" onClick={addFeature} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
                         Add
@@ -536,17 +597,17 @@ const SellerProducts = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Tags</label>
                     <div className="flex gap-2 mb-2">
-                      <input 
-                        type="text" 
-                        value={tagsInput} 
-                        onChange={e => setTagsInput(e.target.value)} 
-                        className="flex-1 px-3 py-2 border rounded-lg" 
-                        placeholder="e.g., luxury, gift" 
-                        onKeyPress={e => e.key === 'Enter' && addTag()} 
+                      <input
+                        type="text"
+                        value={tagsInput}
+                        onChange={e => setTagsInput(e.target.value)}
+                        className="flex-1 px-3 py-2 border rounded-lg"
+                        placeholder="e.g., luxury, gift"
+                        onKeyPress={e => e.key === 'Enter' && addTag()}
                       />
                       <button type="button" onClick={addTag} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
                         Add
@@ -565,7 +626,7 @@ const SellerProducts = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'images' && (
                 <div className="space-y-6">
                   <div>
@@ -574,9 +635,8 @@ const SellerProducts = () => {
                     </label>
                     <div
                       {...getRootProps()}
-                      className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${
-                        isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
-                      }`}
+                      className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+                        }`}
                     >
                       <input {...getInputProps()} />
                       <FaCloudUploadAlt className="text-5xl text-gray-400 mx-auto mb-3" />
@@ -591,7 +651,7 @@ const SellerProducts = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   {uploading && Object.keys(uploadProgress).length > 0 && (
                     <div className="space-y-2">
                       {Object.entries(uploadProgress).map(([name, progress]) => (
@@ -607,7 +667,7 @@ const SellerProducts = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   {formData.videoUrl && (
                     <div className="bg-gray-50 rounded-lg p-4">
                       <div className="flex justify-between items-center mb-2">
@@ -625,7 +685,7 @@ const SellerProducts = () => {
                       <video src={formData.videoUrl} controls className="w-full rounded-lg max-h-48" />
                     </div>
                   )}
-                  
+
                   {imagePreviews.length > 0 && (
                     <div>
                       <label className="block text-sm font-medium mb-2 flex items-center gap-2">
@@ -634,10 +694,10 @@ const SellerProducts = () => {
                       <div className="grid grid-cols-3 gap-3">
                         {imagePreviews.map((preview, idx) => (
                           <div key={idx} className="relative group">
-                            <img 
-                              src={preview} 
-                              alt={`Preview ${idx}`} 
-                              className="w-full h-32 object-cover rounded-lg border shadow-sm" 
+                            <img
+                              src={preview}
+                              alt={`Preview ${idx}`}
+                              className="w-full h-32 object-cover rounded-lg border shadow-sm"
                             />
                             <button
                               type="button"
@@ -651,47 +711,47 @@ const SellerProducts = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="border-t pt-4">
                     <label className="block text-sm font-medium mb-1">External Image URL (Optional)</label>
-                    <input 
-                      type="url" 
-                      value={formData.imageUrl} 
-                      onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
-                      className="w-full px-3 py-2 border rounded-lg" 
-                      placeholder="https://example.com/image.jpg" 
+                    <input
+                      type="url"
+                      value={formData.imageUrl}
+                      onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      placeholder="https://example.com/image.jpg"
                     />
                     <p className="text-xs text-gray-500 mt-1">Alternative to drag & drop upload (external image link)</p>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1 flex items-center gap-2">
                       <FaYoutube className="text-red-500" /> YouTube or Vimeo URL
                     </label>
-                    <input 
-                      type="url" 
-                      value={formData.videoUrl} 
-                      onChange={e => setFormData({...formData, videoUrl: e.target.value})} 
-                      className="w-full px-3 py-2 border rounded-lg" 
-                      placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." 
+                    <input
+                      type="url"
+                      value={formData.videoUrl}
+                      onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
                     />
                     <p className="text-xs text-gray-500 mt-1">Add a YouTube or Vimeo link (will override uploaded video)</p>
                   </div>
                 </div>
               )}
-              
+
               <div className="flex gap-3 pt-4 border-t">
-                <button 
-                  type="submit" 
-                  disabled={uploading} 
+                <button
+                  type="submit"
+                  disabled={uploading}
                   className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {uploading && <FaSpinner className="animate-spin" />}
                   {editingProduct ? 'Update Product' : 'Create Product'}
                 </button>
-                <button 
-                  type="button" 
-                  onClick={() => { setShowModal(false); resetForm(); }} 
+                <button
+                  type="button"
+                  onClick={() => { setShowModal(false); resetForm(); }}
                   className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition"
                 >
                   Cancel

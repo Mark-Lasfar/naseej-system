@@ -37,7 +37,12 @@ body {
 /* ============================================ */
 /* Typography */
 /* ============================================ */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
 }
@@ -45,7 +50,9 @@ h1, h2, h3, h4, h5, h6 {
 /* ============================================ */
 /* Form Elements RTL Adjustments */
 /* ============================================ */
-input, select, textarea {
+input,
+select,
+textarea {
   direction: rtl;
 }
 
@@ -111,6 +118,7 @@ input[type="url"] {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -118,9 +126,12 @@ input[type="url"] {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -198,24 +209,28 @@ table td.amount-cell {
     padding: 0;
     margin: 0;
   }
-  
+
   .no-print {
     display: none !important;
   }
-  
+
   .print-only {
     display: block !important;
   }
-  
-  .shadow-sm, .shadow-md, .shadow-lg {
+
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
     box-shadow: none !important;
   }
-  
-  .rounded-xl, .rounded-lg {
+
+  .rounded-xl,
+  .rounded-lg {
     border-radius: 0 !important;
   }
-  
-  button, a {
+
+  button,
+  a {
     text-decoration: none !important;
   }
 }
@@ -227,11 +242,176 @@ table td.amount-cell {
   .hide-mobile {
     display: none !important;
   }
-  
+
+
+  .profile-drawer {
+    width: 100%;
+  }
+
+
+
+  button,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* تحسين حجم الخط في الرسائل */
+  .message-text {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* تحسين عرض الوقت */
+  .message-time {
+    font-size: 10px;
+  }
+
+  /* تحسين الـ Emoji Picker */
+  .EmojiPickerReact {
+    width: 100% !important;
+    max-width: 320px !important;
+  }
+
+
+
+  .chat-actions {
+    gap: 0.5rem;
+  }
+
+  .chat-actions button {
+    padding: 0.5rem;
+  }
+
+  .message-input-container {
+    flex-wrap: wrap;
+  }
+
+
+  .message-input-container input {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  button,
+  .clickable,
+  a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+
+  .chat-sidebar {
+    width: 85%;
+    max-width: 320px;
+  }
+
+  /* تحسين التمرير الأفقي للجداول */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+
   .full-width-mobile {
     width: 100% !important;
   }
+
+
+  .min-h-screen {
+    min-height: auto;
+  }
+
+  .sticky-top-landscape {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+
+  .profile-drawer .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+
 }
+
+
+
+
+
+/* للشاشات الصغيرة جداً */
+@media (max-width: 480px) {
+  .chat-header h3 {
+    font-size: 14px;
+  }
+
+
+  .chat-header .hidden-xs {
+    display: none;
+  }
+
+  .chat-header .text-xs {
+    font-size: 10px;
+  }
+
+  .message-bubble {
+    max-width: 90%;
+  }
+
+  .message-bubble p {
+    font-size: 13px;
+  }
+}
+
+
+/* ============================================ */
+/* Extra Small Devices (phones, less than 400px) */
+/* ============================================ */
+@media (max-width: 400px) {
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+  }
+
+  /* تحسين البطاقات على الشاشات الصغيرة جداً */
+  .card-padding {
+    padding: 0.75rem;
+  }
+
+  /* إخفاء بعض النصوص الطويلة */
+  .truncate-on-mobile {
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+
+/* ============================================ */
+/* Landscape mode for phones */
+/* ============================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .min-h-screen {
+    min-height: auto;
+  }
+
+  .sticky-top-landscape {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+}
+
 
 @media (min-width: 769px) {
   .hide-desktop {
@@ -341,68 +521,217 @@ input[type="number"] {
 /* Chat Message Styles */
 /* ============================================ */
 :root {
-    --message-bubble-color: #3b82f6;
-    --other-bubble-color: #f3f4f6;
+  --message-bubble-color: #3b82f6;
+  --other-bubble-color: #f3f4f6;
 }
 
 /* تنسيق فقاعات الرسائل الخاصة */
 .message-bubble-own {
-    background: linear-gradient(135deg, var(--message-bubble-color), #2563eb);
+  background: linear-gradient(135deg, var(--message-bubble-color), #2563eb);
 }
 
 /* تنسيق فقاعات رسائل الطرف الآخر */
 .message-bubble-other {
-    background: var(--other-bubble-color);
+  background: var(--other-bubble-color);
 }
 
 /* Chat Container Background */
 .messages-container {
-    background-color: #f9fafb;
-    transition: background-color 0.3s ease;
+  background-color: #f9fafb;
+  transition: background-color 0.3s ease;
+
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
 }
 
 /* Chat Message Animations */
 @keyframes messageSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message-animate {
-    animation: messageSlideIn 0.2s ease-out;
+  animation: messageSlideIn 0.2s ease-out;
 }
 
 /* Typing Indicator */
 .typing-indicator {
-    display: flex;
-    gap: 4px;
-    padding: 8px 12px;
-    background: #e5e7eb;
-    border-radius: 20px;
-    width: fit-content;
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #e5e7eb;
+  border-radius: 20px;
+  width: fit-content;
 }
 
 .typing-dot {
-    width: 6px;
-    height: 6px;
-    background: #9ca3af;
-    border-radius: 50%;
-    animation: typingBounce 1.4s infinite ease-in-out;
+  width: 6px;
+  height: 6px;
+  background: #9ca3af;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out;
 }
 
-.typing-dot:nth-child(1) { animation-delay: -0.32s; }
-.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 @keyframes typingBounce {
-    0%, 60%, 100% {
-        transform: translateY(0);
-    }
-    30% {
-        transform: translateY(-6px);
-    }
+
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-6px);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+/* ============================================ */
+/* Chat Page Fixes */
+/* ============================================ */
+
+/* تثبيت الهيدر */
+.chat-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+
+  z-index: 30;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+
+}
+
+/* تثبيت الفوتر */
+.chat-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background-color: white;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+
+}
+
+
+/* تحسين أزرار الإجراءات على الموبايل */
+@media (max-width: 640px) {
+  .chat-actions button {
+    padding: 0.5rem;
+  }
+
+  .chat-header .group:hover .absolute {
+    display: block;
+  }
+
+
+  .chat-header .group .absolute {
+    position: fixed;
+    bottom: auto;
+    top: auto;
+    right: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  /* تحسين عرض النص الطويل */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+
+  .chat-footer button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+
+  .message-input-container {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .message-input-container input {
+    flex: 1;
+    min-width: 120px;
+  }
+
+
+
+
+  .message-text {
+    font-size: 14px;
+  }
+
+
+
+
+  .chat-sidebar {
+    width: 85%;
+  }
+
+  .chat-header {
+    padding: 0.75rem;
+  }
+
+  .chat-footer {
+    padding: 0.75rem;
+  }
+
+  .message-bubble {
+    max-width: 85%;
+  }
+
+  .message-meta {
+    font-size: 10px;
+  }
+
+
+}
+
+
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* إضافة breakpoint صغير جداً */
+@media (min-width: 480px) {
+  .xs\:block {
+    display: block;
+  }
+}
+
+@media (max-width: 479px) {
+  .xs\:block {
+    display: none;
+  }
 }

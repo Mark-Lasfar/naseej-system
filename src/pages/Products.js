@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FaEdit, FaTrash, FaPlus, FaImage, FaTag, FaBox, FaDollarSign } from 'react-icons/fa';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const Products = () => {
   const [products, setProducts] = useState([]);

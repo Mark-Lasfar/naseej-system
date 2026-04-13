@@ -18,7 +18,7 @@ import {
 } from 'react-icons/fa';
 import EmojiPicker from 'emoji-picker-react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 // Reaction options
 const REACTIONS = [
@@ -1292,106 +1292,146 @@ const Chat = () => {
             <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
                 {currentConversation ? (
                     <>
-                        {/* Chat Header - مع زر فتح الـ Sidebar على الموبايل */}
-                        <div className="p-4 bg-white border-b flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setShowSidebar(true)}
-                                    className="md:hidden p-2 hover:bg-gray-100 rounded-full transition"
-                                >
-                                    <FaBars className="text-gray-600" />
-                                </button>
-                                <button onClick={() => navigate('/chat')} className="lg:hidden p-2 hover:bg-gray-100 rounded-full">
-                                    <FaArrowLeft className="text-gray-600" />
-                                </button>
+                        {/* Chat Header - مع تثبيت وتجاوب */}
+                        <div className="sticky top-0 z-30 bg-white border-b">
+                            <div className="p-3 sm:p-4 flex justify-between items-center">
+                                {/* القسم الأيسر - معلومات المستخدم */}
+                                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                    {/* زر القائمة للموبايل */}
+                                    <button
+                                        onClick={() => setShowSidebar(true)}
+                                        className="md:hidden p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0"
+                                    >
+                                        <FaBars className="text-gray-600 text-base sm:text-lg" />
+                                    </button>
 
-                                {/* صورة المستخدم */}
-                                {/* صورة المستخدم - تعديل onClick لفتح الـ Drawer بدلاً من الرابط المباشر */}
-                                <div onClick={() => setShowProfileDrawer(true)} className="cursor-pointer">
-                                    <div className="relative">
-                                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white overflow-hidden">
-                                            {currentConversation.otherUser?.storeId?.logo ? (
-                                                <img src={currentConversation.otherUser.storeId.logo} alt={currentConversation.otherUser?.username} className="w-full h-full object-cover" />
-                                            ) : (
-                                                currentConversation.otherUser?.username?.charAt(0).toUpperCase()
+                                    {/* زر الرجوع للموبايل */}
+                                    <button
+                                        onClick={() => navigate('/chat')}
+                                        className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0"
+                                    >
+                                        <FaArrowLeft className="text-gray-600 text-base sm:text-lg" />
+                                    </button>
+
+                                    {/* صورة المستخدم - قابلة للنقر لفتح الـ Drawer */}
+                                    <div onClick={() => setShowProfileDrawer(true)} className="cursor-pointer flex-shrink-0">
+                                        <div className="relative">
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white overflow-hidden">
+                                                {currentConversation.otherUser?.storeId?.logo ? (
+                                                    <img
+                                                        src={currentConversation.otherUser.storeId.logo}
+                                                        alt={currentConversation.otherUser?.username}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    currentConversation.otherUser?.username?.charAt(0).toUpperCase()
+                                                )}
+                                            </div>
+                                            {currentConversation.otherUser?.status?.isOnline && (
+                                                <span className="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
                                             )}
                                         </div>
-                                        {currentConversation.otherUser?.status?.isOnline && (
-                                            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold">
-                                            {currentConversation.otherUser?.username}
-                                        </h3>
-                                        {currentConversation.otherUser?.storeId && (
-                                            <span className="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">Seller</span>
-                                        )}
                                     </div>
 
-                                    {/* ✅ حالة المستخدم (Online / آخر ظهور) */}
-                                    {currentConversation.otherUser?.status?.isOnline ? (
-                                        <p className="text-xs text-green-500 flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                                            Online
-                                        </p>
-                                    ) : currentConversation.otherUser?.status?.lastSeen ? (
-                                        <div className="relative group">
-                                            <p className="text-xs text-gray-400 cursor-help">
-                                                Last seen {moment(currentConversation.otherUser.status.lastSeen).fromNow()}
-                                            </p>
-                                            {/* ✅ Tooltip عند hover لعرض الوقت بالتفصيل */}
-                                            <div className="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap">
-                                                {moment(currentConversation.otherUser.status.lastSeen).format('MMMM Do YYYY, h:mm:ss a')}
-                                            </div>
+                                    {/* معلومات المستخدم - مع إخفاء النص الطويل */}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                            <h3 className="font-semibold text-sm sm:text-base truncate max-w-[120px] sm:max-w-[200px]">
+                                                {currentConversation.otherUser?.username}
+                                            </h3>
+                                            {currentConversation.otherUser?.storeId && (
+                                                <span className="text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                                    Seller
+                                                </span>
+                                            )}
                                         </div>
-                                    ) : (
-                                        <p className="text-xs text-gray-400">Offline</p>
-                                    )}
 
-                                    {/* ✅ حالة الكتابة */}
-                                    {otherUserTyping && (
-                                        <p className="text-xs text-blue-500 animate-pulse mt-0.5">Typing...</p>
-                                    )}
+                                        {/* حالة المستخدم - مخفية على الشاشات الصغيرة جداً */}
+                                        <div className="hidden xs:block">
+                                            {currentConversation.otherUser?.status?.isOnline ? (
+                                                <p className="text-xs text-green-500 flex items-center gap-1">
+                                                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                                    <span className="truncate">Online</span>
+                                                </p>
+                                            ) : currentConversation.otherUser?.status?.lastSeen ? (
+                                                <div className="relative group">
+                                                    <p className="text-xs text-gray-400 cursor-help truncate">
+                                                        Last seen {moment(currentConversation.otherUser.status.lastSeen).fromNow()}
+                                                    </p>
+                                                    <div className="absolute bottom-full left-0 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-50">
+                                                        {moment(currentConversation.otherUser.status.lastSeen).format('MMMM Do YYYY, h:mm:ss a')}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-gray-400 truncate">Offline</p>
+                                            )}
+                                        </div>
+
+                                        {/* حالة الكتابة */}
+                                        {otherUserTyping && (
+                                            <p className="text-xs text-blue-500 animate-pulse mt-0.5 hidden sm:block">
+                                                Typing...
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* أزرار الإجراءات */}
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={togglePinConversation}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                    title={isPinned ? 'Unpin conversation' : 'Pin conversation'}
-                                >
-                                    {isPinned ? <FaStar className="text-yellow-500" /> : <FaRegStar className="text-gray-500" />}
-                                </button>
-                                <button
-                                    onClick={toggleMuteConversation}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                    title={isMuted ? 'Unmute conversation' : 'Mute conversation'}
-                                >
-                                    {isMuted ? <FaVolumeMute className="text-gray-500" /> : <FaVolumeUp className="text-gray-500" />}
-                                </button>
-
-                                {/* قائمة الإجراءات الإضافية */}
-                                <div className="relative group">
-                                    <button className="p-2 hover:bg-gray-100 rounded-full transition">
-                                        <FaEllipsisV className="text-gray-600" />
+                                {/* القسم الأيمن - أزرار الإجراءات */}
+                                <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+                                    {/* زر التثبيت */}
+                                    <button
+                                        onClick={togglePinConversation}
+                                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition"
+                                        title={isPinned ? 'Unpin conversation' : 'Pin conversation'}
+                                    >
+                                        {isPinned ? (
+                                            <FaStar className="text-yellow-500 text-sm sm:text-base" />
+                                        ) : (
+                                            <FaRegStar className="text-gray-500 text-sm sm:text-base" />
+                                        )}
                                     </button>
-                                    <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg py-1 z-20 min-w-[180px] hidden group-hover:block border">
-                                        <button onClick={exportConversation} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3">
-                                            <FaDownload size={14} /> Export Chat
+
+                                    {/* زر كتم الصوت */}
+                                    <button
+                                        onClick={toggleMuteConversation}
+                                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition"
+                                        title={isMuted ? 'Unmute conversation' : 'Mute conversation'}
+                                    >
+                                        {isMuted ? (
+                                            <FaVolumeMute className="text-gray-500 text-sm sm:text-base" />
+                                        ) : (
+                                            <FaVolumeUp className="text-gray-500 text-sm sm:text-base" />
+                                        )}
+                                    </button>
+
+                                    {/* قائمة الإجراءات الإضافية - منسدلة */}
+                                    <div className="relative group">
+                                        <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition">
+                                            <FaEllipsisV className="text-gray-600 text-sm sm:text-base" />
                                         </button>
-                                        <button onClick={archiveConversation} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3">
-                                            <FaArchive size={14} /> Archive
-                                        </button>
-                                        <hr className="my-1" />
-                                        <button onClick={deleteConversation} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
-                                            <FaTrash size={14} /> Delete Conversation
-                                        </button>
+
+                                        {/* القائمة المنسدلة */}
+                                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg py-1 z-20 min-w-[160px] hidden group-hover:block border">
+                                            <button
+                                                onClick={exportConversation}
+                                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3 transition"
+                                            >
+                                                <FaDownload size={14} /> Export Chat
+                                            </button>
+                                            <button
+                                                onClick={archiveConversation}
+                                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3 transition"
+                                            >
+                                                <FaArchive size={14} /> Archive
+                                            </button>
+                                            <hr className="my-1" />
+                                            <button
+                                                onClick={deleteConversation}
+                                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition"
+                                            >
+                                                <FaTrash size={14} /> Delete Conversation
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1672,68 +1712,49 @@ const Chat = () => {
                             </button>
                         )}
 
-                        <form onSubmit={sendMessage} className="p-4 bg-white border-t">
+                        <form onSubmit={sendMessage} className="chat-footer p-3 sm:p-4 bg-white border-t">
+                            {/* الصف الأول - أزرار الميديا (تظهر في صف منفصل على الموبايل) */}
+                            <div className="flex flex-wrap gap-2 mb-2 sm:mb-0">
+                                <div className="flex gap-1 w-full sm:w-auto justify-center sm:justify-start">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                                    >
+                                        <FaSmile className="text-gray-500 text-lg sm:text-xl" />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => document.getElementById('image-upload').click()}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                                        title="Upload Image"
+                                    >
+                                        <FaImage className="text-green-500 text-lg sm:text-xl" />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => document.getElementById('video-upload').click()}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                                        title="Upload Video"
+                                    >
+                                        <FaVideo className="text-red-500 text-lg sm:text-xl" />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current.click()}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                                        title="Upload File"
+                                    >
+                                        <FaPaperclip className="text-gray-500 text-lg sm:text-xl" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* الصف الثاني - حقل الإدخال وزر الإرسال */}
                             <div className="flex gap-2">
-                                {/* Hidden file inputs */}
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*,video/*"
-                                    multiple
-                                    className="hidden"
-                                    onChange={handleImageSelect}
-                                />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    className="hidden"
-                                    id="image-upload"
-                                    onChange={handleImageSelect}
-                                />
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    className="hidden"
-                                    id="video-upload"
-                                    onChange={handleVideoSelect}
-                                />
-
-                                <button
-                                    type="button"
-                                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                >
-                                    <FaSmile className="text-gray-500 text-xl" />
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => document.getElementById('image-upload').click()}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                    title="Upload Image"
-                                >
-                                    <FaImage className="text-green-500 text-xl" />
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => document.getElementById('video-upload').click()}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                    title="Upload Video"
-                                >
-                                    <FaVideo className="text-red-500 text-xl" />
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current.click()}
-                                    className="p-2 hover:bg-gray-100 rounded-full transition"
-                                    title="Upload File"
-                                >
-                                    <FaPaperclip className="text-gray-500 text-xl" />
-                                </button>
-
                                 <input
                                     id="message-input"
                                     type="text"
@@ -1749,17 +1770,42 @@ const Chat = () => {
                                         }
                                     }}
                                     placeholder="Type a message..."
-                                    className="flex-1 px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="flex-1 px-3 sm:px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                                 />
 
                                 <button
                                     type="submit"
                                     disabled={sending || !messageText.trim()}
-                                    className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:shadow-lg transition-all hover:scale-105 disabled:opacity-50"
+                                    className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:shadow-lg transition-all hover:scale-105 disabled:opacity-50 flex-shrink-0"
                                 >
                                     {sending ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
                                 </button>
                             </div>
+
+                            {/* Hidden file inputs */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*,video/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleImageSelect}
+                            />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                id="image-upload"
+                                onChange={handleImageSelect}
+                            />
+                            <input
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                id="video-upload"
+                                onChange={handleVideoSelect}
+                            />
 
                             {showEmojiPicker && (
                                 <div className="absolute bottom-20 left-4 z-10">

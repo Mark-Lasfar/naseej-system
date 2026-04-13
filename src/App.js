@@ -26,12 +26,17 @@ import PaymentInstructions from './pages/PaymentInstructions';
 
 import DesignStudio from './pages/DesignStudio';
 import MaterialLibrary from './pages/MaterialLibrary';
+import ProductionPartner from './pages/ProductionPartner';
+
 
 // Seller Pages
 import SellerDashboard from './pages/seller/SellerDashboard';
 import SellerProducts from './pages/seller/SellerProducts';
 import SellerOrders from './pages/seller/SellerOrders';
 import SellerPayouts from './pages/seller/SellerPayouts';
+import SellerProfitAnalytics from './pages/seller/SellerProfitAnalytics';
+import SellerIntegrations from './pages/seller/SellerIntegrations';
+
 import SellerStoreSettings from './pages/seller/SellerStoreSettings';
 
 // User Pages
@@ -42,7 +47,7 @@ import Chat from './pages/Chat';
 // API Configuration
 const API_URL = process.env.REACT_APP_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://naseej-backend.vercel.app/api'
+    ? 'https://mgzon-naseej-backend.hf.space/api'
     : 'http://localhost:5000/api');
     
 // Axios interceptor
@@ -166,18 +171,19 @@ function App() {
   const isAdmin = user?.role === 'admin';
 
   // ✅ دالة لعرض المحتوى العادي (مع container)
-  const MainLayout = ({ children }) => (
-    <div className="container mx-auto px-4 py-8">
-      {children}
-    </div>
-  );
+ const MainLayout = ({ children }) => (
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    {children}
+  </div>
+);
+
 
   // ✅ دالة لعرض الشات (بدون container، يأخذ كامل العرض)
-  const ChatLayout = ({ children }) => (
-    <div className="h-[calc(100vh-72px)]">
-      {children}
-    </div>
-  );
+ const ChatLayout = ({ children }) => (
+  <div className="h-[calc(100vh-64px)] lg:h-[calc(100vh-72px)]">
+    {children}
+  </div>
+);
 
   return (
     <Router>
@@ -239,6 +245,8 @@ function App() {
               {/* AI Design Routes */}
               <Route path="/design-studio" element={<MainLayout><DesignStudio addToCart={addToCart} /></MainLayout>} />
               <Route path="/material-library" element={<MainLayout><MaterialLibrary /></MainLayout>} />
+              <Route path="/production-partner" element={<MainLayout><ProductionPartner /></MainLayout>} /> {/* ✅ أضف هذا السطر */}
+
 
               {/* Seller Routes */}
               {isSeller && (
@@ -247,7 +255,11 @@ function App() {
                   <Route path="/seller/products" element={<MainLayout><SellerProducts addToCart={addToCart} /></MainLayout>} />
                   <Route path="/seller/orders" element={<MainLayout><SellerOrders /></MainLayout>} />
                   <Route path="/seller/payouts" element={<MainLayout><SellerPayouts /></MainLayout>} />
+                  <Route path="/seller/profit-analytics" element={<MainLayout><SellerProfitAnalytics /></MainLayout>} />
+                  <Route path="/seller/integrations" element={<MainLayout><SellerIntegrations /></MainLayout>} /> {/* ✅ جديد */}
                   <Route path="/seller/store-settings" element={<MainLayout><SellerStoreSettings /></MainLayout>} />
+
+
                 </>
               )}
 

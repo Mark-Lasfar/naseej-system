@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { 
@@ -7,13 +8,14 @@ import {
   FaShieldAlt, FaUndo, FaStore, FaHeart, FaRegHeart, FaShare,
   FaMinus, FaPlus, FaCheckCircle, FaClock, FaBox, FaTag,
   FaFacebook, FaTwitter, FaWhatsapp, FaEnvelope, FaExpand,
-  FaPlay, FaPause, FaVideo
+  FaPlay, FaPause, FaVideo, FaArrowLeft
 } from 'react-icons/fa';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const StoreProduct = ({ addToCart }) => {
   const { storeSlug, productSlug } = useParams();
+  const navigate = useNavigate();
   const [store, setStore] = useState(null);
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -41,18 +43,15 @@ const StoreProduct = ({ addToCart }) => {
   const fetchProductAndStore = async () => {
     setLoading(true);
     try {
-      // محاولة جلب المنتج من API المتجر
       const response = await axios.get(`${API_URL}/stores/${storeSlug}/product/${productSlug}`);
       setStore(response.data.store);
       setProduct(response.data.product);
       
-      // جلب المنتجات المشابهة
       if (response.data.product) {
         const relatedRes = await axios.get(`${API_URL}/products/${response.data.product._id}/related`);
         setRelatedProducts(relatedRes.data);
       }
       
-      // التحقق من حالة المفضلة
       const token = localStorage.getItem('token');
       if (token && response.data.product) {
         try {
@@ -66,22 +65,20 @@ const StoreProduct = ({ addToCart }) => {
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      // إذا فشل، حاول جلب المنتج من API العام
       try {
         const productRes = await axios.get(`${API_URL}/products/slug/${productSlug}`);
         setProduct(productRes.data);
         
-        // جلب المتجر من product.storeId
         if (productRes.data.storeId) {
           const storeRes = await axios.get(`${API_URL}/stores/${productRes.data.storeId}`);
           setStore(storeRes.data);
         }
         
-        // جلب المنتجات المشابهة
         const relatedRes = await axios.get(`${API_URL}/products/${productRes.data._id}/related`);
         setRelatedProducts(relatedRes.data);
       } catch (fallbackError) {
         toast.error('Product not found');
+        navigate('/shop');
       }
     } finally {
       setLoading(false);
@@ -232,7 +229,7 @@ const StoreProduct = ({ addToCart }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex justify-center items-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -256,42 +253,52 @@ const StoreProduct = ({ addToCart }) => {
   const hasVideo = product.videoUrl;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      {/* Back Button - Mobile */}
+      <button
+        onClick={() => navigate(-1)}
+        className="lg:hidden flex items-center gap-2 text-gray-600 mb-4 hover:text-blue-600 transition"
+      >
+        <FaArrowLeft /> Back
+      </button>
+
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 flex-wrap">
         <Link to="/" className="hover:text-blue-600">Home</Link>
         <span>/</span>
         <Link to="/shop" className="hover:text-blue-600">Shop</Link>
         <span>/</span>
-        <Link to={`/shop/${store.slug}`} className="hover:text-blue-600">{store.name}</Link>
+        <Link to={`/shop/${store.slug}`} className="hover:text-blue-600 line-clamp-1 max-w-[120px] sm:max-w-none">
+          {store.name}
+        </Link>
         <span>/</span>
-        <span className="text-gray-800 line-clamp-1">{product.name}</span>
+        <span className="text-gray-800 line-clamp-1 max-w-[150px] sm:max-w-none">{product.name}</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Product Images Gallery with Zoom */}
         <div>
           <div 
             ref={imageContainerRef}
-            className="relative bg-gray-100 rounded-xl overflow-hidden mb-4"
-            style={{ height: '500px' }}
+            className="relative bg-gray-100 rounded-xl overflow-hidden mb-3 sm:mb-4"
+            style={{ height: 'auto', minHeight: '300px', aspectRatio: '1/1' }}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
           >
             {discountPercent > 0 && (
-              <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold z-10">
+              <span className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-red-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold z-10">
                 -{discountPercent}% OFF
               </span>
             )}
             {product.isNew && (
-              <span className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold z-10">
+              <span className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-green-500 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-semibold z-10">
                 New
               </span>
             )}
             
             {hasVideo && selectedImage === images.length ? (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full" style={{ aspectRatio: '1/1' }}>
                 <video
                   ref={videoRef}
                   src={product.videoUrl}
@@ -310,40 +317,43 @@ const StoreProduct = ({ addToCart }) => {
                       setIsVideoPlaying(!isVideoPlaying);
                     }
                   }}
-                  className="absolute inset-0 m-auto w-16 h-16 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 transition"
+                  className="absolute inset-0 m-auto w-12 h-12 sm:w-16 sm:h-16 bg-black/50 rounded-full flex items-center justify-center hover:bg-black/70 transition"
                 >
-                  {isVideoPlaying ? <FaPause className="text-white text-2xl" /> : <FaPlay className="text-white text-2xl ml-1" />}
+                  {isVideoPlaying ? <FaPause className="text-white text-xl sm:text-2xl" /> : <FaPlay className="text-white text-xl sm:text-2xl ml-1" />}
                 </button>
               </div>
             ) : (
               <img 
                 src={images[selectedImage] || product.imageUrl} 
                 alt={product.name} 
-                className={`w-full h-full object-contain transition-transform duration-200 ${
-                  isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
-                }`}
+                className="w-full h-full object-contain transition-transform duration-200"
                 style={{
-                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                  transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
+                  cursor: isZoomed ? 'zoom-out' : 'zoom-in',
+                  height: 'auto',
+                  minHeight: '300px',
+                  aspectRatio: '1/1'
                 }}
               />
             )}
             
             <button
               onClick={toggleFullscreen}
-              className="absolute bottom-4 right-4 bg-black/50 p-2 rounded-lg hover:bg-black/70 transition z-10"
+              className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-black/50 p-1.5 sm:p-2 rounded-lg hover:bg-black/70 transition z-10"
             >
-              <FaExpand className="text-white" />
+              <FaExpand className="text-white text-sm sm:text-base" />
             </button>
           </div>
           
           {/* Thumbnails */}
           {(images.length > 1 || hasVideo) && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
               {images.map((img, idx) => (
                 <div 
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer flex-shrink-0 border-2 transition ${
+                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden cursor-pointer flex-shrink-0 border-2 transition ${
                     selectedImage === idx ? 'border-blue-600 shadow-lg' : 'border-transparent hover:border-gray-300'
                   }`}
                 >
@@ -353,11 +363,11 @@ const StoreProduct = ({ addToCart }) => {
               {hasVideo && (
                 <div 
                   onClick={() => setSelectedImage(images.length)}
-                  className={`relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer flex-shrink-0 border-2 transition flex items-center justify-center bg-gray-800 ${
+                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden cursor-pointer flex-shrink-0 border-2 transition flex items-center justify-center bg-gray-800 ${
                     selectedImage === images.length ? 'border-blue-600 shadow-lg' : 'border-transparent hover:border-gray-300'
                   }`}
                 >
-                  <FaVideo className="text-white text-2xl" />
+                  <FaVideo className="text-white text-xl sm:text-2xl" />
                   <div className="absolute inset-0 bg-black/40"></div>
                 </div>
               )}
@@ -368,44 +378,44 @@ const StoreProduct = ({ addToCart }) => {
         {/* Product Info */}
         <div>
           {/* Store Info */}
-          <Link to={`/shop/${store.slug}`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-3 group">
+          <Link to={`/shop/${store.slug}`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-2 sm:mb-3 group text-sm sm:text-base">
             <FaStore className="text-gray-500 group-hover:text-blue-600" />
             <span className="font-medium">{store.name}</span>
             <span className="text-xs text-gray-400">View Store →</span>
           </Link>
           
-          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">{product.name}</h1>
           
           {/* Rating */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex gap-1">{renderStars(product.rating)}</div>
-            <span className="text-gray-500">({product.reviewCount} reviews)</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
+            <div className="flex gap-0.5 sm:gap-1">{renderStars(product.rating, 'text-sm sm:text-base')}</div>
+            <span className="text-xs sm:text-sm text-gray-500">({product.reviewCount} reviews)</span>
             {product.soldCount > 0 && (
               <>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-500">{product.soldCount} sold</span>
+                <span className="text-xs sm:text-sm text-gray-500">{product.soldCount} sold</span>
               </>
             )}
           </div>
 
           {/* Price */}
           <div className="mb-4">
-            <span className="text-3xl font-bold text-blue-600">{product.price.toLocaleString()} EGP</span>
+            <span className="text-2xl sm:text-3xl font-bold text-blue-600">{product.price.toLocaleString()} EGP</span>
             {product.oldPrice > 0 && (
-              <span className="text-lg text-gray-400 line-through ml-2">{product.oldPrice.toLocaleString()} EGP</span>
+              <span className="text-sm sm:text-lg text-gray-400 line-through ml-2">{product.oldPrice.toLocaleString()} EGP</span>
             )}
           </div>
 
           {/* Short Description */}
-          <p className="text-gray-600 mb-6">{product.description?.substring(0, 200)}...</p>
+          <p className="text-gray-600 text-sm sm:text-base mb-6 line-clamp-3">{product.description?.substring(0, 200)}...</p>
 
           {/* Features */}
           {product.features?.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-semibold mb-2">Key Features:</h3>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <h3 className="font-semibold mb-2 text-sm sm:text-base">Key Features:</h3>
+              <ul className="list-disc list-inside text-gray-600 text-sm sm:text-base space-y-1">
                 {product.features.slice(0, 4).map((feature, idx) => (
-                  <li key={idx}>{feature}</li>
+                  <li key={idx} className="line-clamp-1">{feature}</li>
                 ))}
               </ul>
             </div>
@@ -414,11 +424,11 @@ const StoreProduct = ({ addToCart }) => {
           {/* Stock Status */}
           <div className="mb-4">
             {product.quantity > 0 ? (
-              <span className="text-green-600 flex items-center gap-1">
+              <span className="text-green-600 flex items-center gap-1 text-sm sm:text-base">
                 <FaCheckCircle /> In Stock ({product.quantity} available)
               </span>
             ) : (
-              <span className="text-red-600 flex items-center gap-1">
+              <span className="text-red-600 flex items-center gap-1 text-sm sm:text-base">
                 <FaClock /> Out of Stock
               </span>
             )}
@@ -426,31 +436,31 @@ const StoreProduct = ({ addToCart }) => {
 
           {/* Quantity and Actions */}
           {product.quantity > 0 && (
-            <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
               <div className="flex items-center border rounded-lg">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 hover:bg-gray-100 transition"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-gray-100 transition"
                 >
-                  <FaMinus />
+                  <FaMinus className="text-xs sm:text-sm" />
                 </button>
-                <span className="px-6 py-2 border-x w-16 text-center">{quantity}</span>
+                <span className="px-4 py-1.5 sm:px-6 sm:py-2 border-x w-12 sm:w-16 text-center text-sm sm:text-base">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
-                  className="px-4 py-2 hover:bg-gray-100 transition"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 hover:bg-gray-100 transition"
                 >
-                  <FaPlus />
+                  <FaPlus className="text-xs sm:text-sm" />
                 </button>
               </div>
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:shadow-lg transition"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 sm:py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:shadow-lg transition text-sm sm:text-base"
               >
                 <FaShoppingCart /> Add to Cart
               </button>
               <button
                 onClick={handleWishlist}
-                className={`p-3 border rounded-lg transition ${
+                className={`p-2.5 sm:p-3 border rounded-lg transition ${
                   isWishlisted ? 'bg-red-50 border-red-300 text-red-500' : 'hover:bg-gray-50'
                 }`}
               >
@@ -458,35 +468,35 @@ const StoreProduct = ({ addToCart }) => {
               </button>
               <button
                 onClick={shareProduct}
-                className="p-3 border rounded-lg hover:bg-gray-50 transition"
+                className="p-2.5 sm:p-3 border rounded-lg hover:bg-gray-50 transition"
               >
                 <FaShare />
               </button>
             </div>
           )}
 
-          {/* Share Buttons */}
-          <div className="flex gap-2 mb-6">
-            <button onClick={shareViaWhatsApp} className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm flex items-center gap-1 hover:bg-green-600 transition">
+          {/* Share Buttons - Mobile Optimized */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button onClick={shareViaWhatsApp} className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs sm:text-sm flex items-center gap-1 hover:bg-green-600 transition">
               <FaWhatsapp /> WhatsApp
             </button>
           </div>
 
           {/* Shipping Info */}
-          <div className="border-t pt-4 space-y-2 text-sm text-gray-500">
-            <div className="flex items-center gap-2"><FaTruck className="text-blue-500" /> Free shipping on orders over {(store.settings?.freeShippingThreshold || 1000).toLocaleString()} EGP</div>
-            <div className="flex items-center gap-2"><FaShieldAlt className="text-green-500" /> Sold by {store.name}</div>
-            <div className="flex items-center gap-2"><FaUndo className="text-orange-500" /> Easy returns within 14 days</div>
+          <div className="border-t pt-4 space-y-2 text-xs sm:text-sm text-gray-500">
+            <div className="flex items-center gap-2"><FaTruck className="text-blue-500 text-sm sm:text-base" /> Free shipping on orders over {(store.settings?.freeShippingThreshold || 1000).toLocaleString()} EGP</div>
+            <div className="flex items-center gap-2"><FaShieldAlt className="text-green-500 text-sm sm:text-base" /> Sold by {store.name}</div>
+            <div className="flex items-center gap-2"><FaUndo className="text-orange-500 text-sm sm:text-base" /> Easy returns within 14 days</div>
           </div>
         </div>
       </div>
 
-      {/* Product Details Tabs */}
-      <div className="mt-12">
-        <div className="border-b flex gap-6 mb-6 overflow-x-auto">
+      {/* Product Details Tabs - Responsive */}
+      <div className="mt-8 sm:mt-12">
+        <div className="border-b flex gap-3 sm:gap-6 mb-4 sm:mb-6 overflow-x-auto scrollbar-thin">
           <button
             onClick={() => setActiveTab('description')}
-            className={`pb-3 px-1 font-medium whitespace-nowrap transition ${
+            className={`pb-2 sm:pb-3 px-2 sm:px-1 font-medium whitespace-nowrap text-sm sm:text-base transition ${
               activeTab === 'description' 
                 ? 'border-b-2 border-blue-600 text-blue-600' 
                 : 'text-gray-500 hover:text-gray-700'
@@ -496,7 +506,7 @@ const StoreProduct = ({ addToCart }) => {
           </button>
           <button
             onClick={() => setActiveTab('specifications')}
-            className={`pb-3 px-1 font-medium whitespace-nowrap transition ${
+            className={`pb-2 sm:pb-3 px-2 sm:px-1 font-medium whitespace-nowrap text-sm sm:text-base transition ${
               activeTab === 'specifications' 
                 ? 'border-b-2 border-blue-600 text-blue-600' 
                 : 'text-gray-500 hover:text-gray-700'
@@ -506,7 +516,7 @@ const StoreProduct = ({ addToCart }) => {
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`pb-3 px-1 font-medium whitespace-nowrap transition ${
+            className={`pb-2 sm:pb-3 px-2 sm:px-1 font-medium whitespace-nowrap text-sm sm:text-base transition ${
               activeTab === 'reviews' 
                 ? 'border-b-2 border-blue-600 text-blue-600' 
                 : 'text-gray-500 hover:text-gray-700'
@@ -516,38 +526,38 @@ const StoreProduct = ({ addToCart }) => {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
           {activeTab === 'description' && (
             <div className="prose max-w-none">
-              <p className="text-gray-600 whitespace-pre-line leading-relaxed">{product.description}</p>
+              <p className="text-gray-600 whitespace-pre-line leading-relaxed text-sm sm:text-base">{product.description}</p>
             </div>
           )}
 
           {activeTab === 'specifications' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex justify-between py-2 border-b">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">Category</span>
                 <span className="text-gray-600 capitalize">{product.category}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">Subcategory</span>
                 <span className="text-gray-600">{product.subcategory || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">Material</span>
                 <span className="text-gray-600">{product.material || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">Size</span>
                 <span className="text-gray-600">{product.size || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">Color</span>
                 <span className="text-gray-600">{product.color || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
+              <div className="flex justify-between py-2 border-b text-sm sm:text-base">
                 <span className="font-medium">SKU</span>
-                <span className="text-gray-600 font-mono">{product._id?.slice(-8)}</span>
+                <span className="text-gray-600 font-mono text-xs sm:text-sm">{product._id?.slice(-8)}</span>
               </div>
             </div>
           )}
@@ -555,10 +565,10 @@ const StoreProduct = ({ addToCart }) => {
           {activeTab === 'reviews' && (
             <div>
               {/* Review Form */}
-              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold mb-3">Write a Review</h3>
+              <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold mb-3 text-sm sm:text-base">Write a Review</h3>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm">Your Rating:</span>
+                  <span className="text-xs sm:text-sm">Your Rating:</span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map(r => (
                       <button
@@ -567,9 +577,9 @@ const StoreProduct = ({ addToCart }) => {
                         className="focus:outline-none transition-transform hover:scale-110"
                       >
                         {r <= newReview.rating ? (
-                          <FaStar className="text-yellow-400 text-xl" />
+                          <FaStar className="text-yellow-400 text-lg sm:text-xl" />
                         ) : (
-                          <FaRegStar className="text-gray-300 text-xl" />
+                          <FaRegStar className="text-gray-300 text-lg sm:text-xl" />
                         )}
                       </button>
                     ))}
@@ -579,13 +589,13 @@ const StoreProduct = ({ addToCart }) => {
                   value={newReview.text}
                   onChange={(e) => setNewReview({ ...newReview, text: e.target.value })}
                   placeholder="Share your experience with this product..."
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                   rows="3"
                 />
                 <button
                   onClick={submitReview}
                   disabled={submittingReview}
-                  className="mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                  className="mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition disabled:opacity-50 text-sm sm:text-base"
                 >
                   {submittingReview ? 'Submitting...' : 'Submit Review'}
                 </button>
@@ -593,26 +603,26 @@ const StoreProduct = ({ addToCart }) => {
 
               {/* Reviews List */}
               {reviews.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+                <p className="text-gray-500 text-center py-8 text-sm sm:text-base">No reviews yet. Be the first to review this product!</p>
               ) : (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {reviews.map(review => (
                     <div key={review._id} className="border-b pb-4">
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                             <span className="text-sm font-bold text-white">
                               {review.userId?.username?.charAt(0).toUpperCase() || 'U'}
                             </span>
                           </div>
-                          <span className="font-medium">{review.userId?.username || 'Anonymous'}</span>
-                          <div className="flex gap-1 ml-2">
-                            {renderStars(review.rating, 'text-sm')}
+                          <span className="font-medium text-sm sm:text-base">{review.userId?.username || 'Anonymous'}</span>
+                          <div className="flex gap-0.5 ml-2">
+                            {renderStars(review.rating, 'text-xs sm:text-sm')}
                           </div>
                         </div>
                         <span className="text-xs text-gray-400">{formatDate(review.timestamp)}</span>
                       </div>
-                      <p className="text-gray-600 ml-10">{review.text}</p>
+                      <p className="text-gray-600 text-sm sm:text-base mt-2 sm:ml-10">{review.text}</p>
                     </div>
                   ))}
                 </div>
@@ -622,23 +632,23 @@ const StoreProduct = ({ addToCart }) => {
         </div>
       </div>
 
-      {/* Related Products */}
+      {/* Related Products - Responsive Grid */}
       {relatedProducts.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-8 sm:mt-12">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">You May Also Like</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {relatedProducts.map(related => (
               <Link 
                 to={`/product/${related.slug}`}
                 key={related._id}
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="h-40 overflow-hidden bg-gray-100">
+                <div className="h-32 sm:h-40 overflow-hidden bg-gray-100">
                   <img src={related.imageUrl} alt={related.name} className="w-full h-full object-cover hover:scale-105 transition duration-300" />
                 </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-sm line-clamp-1">{related.name}</h3>
-                  <p className="text-blue-600 font-bold mt-1">{related.price.toLocaleString()} EGP</p>
+                <div className="p-2 sm:p-3">
+                  <h3 className="font-medium text-xs sm:text-sm line-clamp-1">{related.name}</h3>
+                  <p className="text-blue-600 font-bold text-xs sm:text-sm mt-1">{related.price.toLocaleString()} EGP</p>
                 </div>
               </Link>
             ))}

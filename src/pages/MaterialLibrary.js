@@ -4,11 +4,12 @@ import { toast } from 'react-hot-toast';
 import { 
   FaSearch, FaFilter, FaPlus, FaEdit, FaTrash, FaTimes,
   FaBox, FaDollarSign, FaStore, FaStar, FaRegStar,
-  FaImage, FaSpinner, FaArrowLeft
+  FaImage, FaSpinner, FaArrowLeft, FaEye, FaChartLine,
+  FaWarehouse, FaTruck, FaCheckCircle
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const MaterialLibrary = () => {
   const [materials, setMaterials] = useState([]);
@@ -17,7 +18,10 @@ const MaterialLibrary = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [stats, setStats] = useState(null);
   const [editingMaterial, setEditingMaterial] = useState(null);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     category: 'wool',
@@ -38,6 +42,7 @@ const MaterialLibrary = () => {
 
   useEffect(() => {
     fetchMaterials();
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -47,12 +52,21 @@ const MaterialLibrary = () => {
   const fetchMaterials = async () => {
     try {
       const response = await axios.get(`${API_URL}/materials`);
-      setMaterials(response.data);
-      setFilteredMaterials(response.data);
+      setMaterials(response.data.materials || response.data);
+      setFilteredMaterials(response.data.materials || response.data);
     } catch (error) {
       toast.error('Failed to load materials');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/materials/stats/summary`);
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
     }
   };
 
@@ -61,8 +75,8 @@ const MaterialLibrary = () => {
     
     if (searchTerm) {
       filtered = filtered.filter(m => 
-        m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+        m.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.supplier?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -84,6 +98,7 @@ const MaterialLibrary = () => {
         toast.success('Material added successfully');
       }
       fetchMaterials();
+      fetchStats();
       setShowModal(false);
       resetForm();
     } catch (error) {
@@ -97,6 +112,7 @@ const MaterialLibrary = () => {
         await axios.delete(`${API_URL}/materials/${id}`);
         toast.success('Material deleted successfully');
         fetchMaterials();
+        fetchStats();
       } catch (error) {
         toast.error('Failed to delete material');
       }
@@ -147,6 +163,17 @@ const MaterialLibrary = () => {
     return badges[category] || 'bg-gray-100 text-gray-800';
   };
 
+  const getCategoryIcon = (category) => {
+    const icons = {
+      wool: '🧶',
+      silk: '✨',
+      cotton: '🌿',
+      polyester: '🔧',
+      blend: '🎨'
+    };
+    return icons[category] || '📦';
+  };
+
   const renderStars = (value) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -169,17 +196,52 @@ const MaterialLibrary = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link to="/" className="text-gray-600 hover:text-gray-800 transition">
-          <FaArrowLeft size={24} />
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            📚 Material Library
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">Manage fabrics, yarns, and materials for carpet production</p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-gray-600 hover:text-gray-800 transition">
+            <FaArrowLeft size={24} />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              📚 Material Library
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">Manage fabrics, yarns, and materials for carpet production</p>
+          </div>
         </div>
+        <button
+          onClick={() => setShowStats(!showStats)}
+          className="px-4 py-2 bg-gray-100 rounded-xl flex items-center gap-2 hover:bg-gray-200 transition"
+        >
+          <FaChartLine /> {showStats ? 'Hide Stats' : 'Show Stats'}
+        </button>
       </div>
+
+      {/* Statistics Cards */}
+      {showStats && stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+            <FaBox className="text-2xl mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{stats.totalMaterials}</p>
+            <p className="text-xs opacity-80">Total Materials</p>
+          </div>
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
+            <FaCheckCircle className="text-2xl mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{stats.activeMaterials}</p>
+            <p className="text-xs opacity-80">Active Materials</p>
+          </div>
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+            <FaWarehouse className="text-2xl mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{stats.lowStockMaterials}</p>
+            <p className="text-xs opacity-80">Low Stock</p>
+          </div>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+            <FaDollarSign className="text-2xl mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{stats.totalInventoryValue?.toLocaleString()} EGP</p>
+            <p className="text-xs opacity-80">Inventory Value</p>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
@@ -229,19 +291,33 @@ const MaterialLibrary = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredMaterials.map((material) => (
-            <div key={material._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+            <div 
+              key={material._id} 
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
+              onClick={() => setSelectedMaterial(selectedMaterial?._id === material._id ? null : material)}
+            >
               {/* Image */}
               <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
                 {material.imageUrl ? (
                   <img src={material.imageUrl} alt={material.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                 ) : (
-                  <FaImage size={48} className="text-gray-300" />
+                  <div className="text-center">
+                    <div className="text-5xl mb-1">{getCategoryIcon(material.category)}</div>
+                    <FaImage size={32} className="text-gray-300 mx-auto" />
+                  </div>
                 )}
                 <div className="absolute top-3 right-3">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getCategoryBadge(material.category)}`}>
                     {material.category}
                   </span>
                 </div>
+                {material.availableQuantities < 100 && (
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-500 text-white">
+                      Low Stock
+                    </span>
+                  </div>
+                )}
               </div>
               
               {/* Content */}
@@ -253,17 +329,21 @@ const MaterialLibrary = () => {
                       <FaStore size={12} /> {material.supplier}
                     </p>
                   </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-blue-600">{material.pricePerKg?.toLocaleString()} EGP</p>
+                    <p className="text-xs text-gray-400">per kg</p>
+                  </div>
                 </div>
                 
-                {/* Stats */}
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="bg-gray-50 rounded-xl p-2 text-center">
-                    <p className="text-xs text-gray-500">Price</p>
-                    <p className="font-bold text-blue-600">{material.pricePerKg?.toLocaleString()} EGP/kg</p>
+                {/* Quick Stats */}
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-1">
+                    <FaWarehouse className="text-gray-400" />
+                    <span>{material.availableQuantities?.toLocaleString()} kg</span>
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-2 text-center">
-                    <p className="text-xs text-gray-500">Stock</p>
-                    <p className="font-semibold">{material.availableQuantities?.toLocaleString()} kg</p>
+                  <div className="flex items-center gap-1">
+                    <FaTruck className="text-gray-400" />
+                    <span>{material.thickness} cm</span>
                   </div>
                 </div>
                 
@@ -279,18 +359,29 @@ const MaterialLibrary = () => {
                   </div>
                 </div>
                 
-                {/* Colors */}
-                {material.availableColors?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t">
-                    <p className="text-xs text-gray-500 mb-1">Available Colors:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {material.availableColors.slice(0, 4).map((color, idx) => (
-                        <span key={idx} className="w-5 h-5 rounded-full border" style={{ backgroundColor: color }} title={color}></span>
-                      ))}
-                      {material.availableColors.length > 4 && (
-                        <span className="text-xs text-gray-400">+{material.availableColors.length - 4}</span>
-                      )}
+                {/* Expanded Details */}
+                {selectedMaterial?._id === material._id && (
+                  <div className="mt-4 pt-3 border-t animate-fade-in">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-gray-500">Weight</p>
+                        <p className="font-medium">{material.weight} kg/m²</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Thickness</p>
+                        <p className="font-medium">{material.thickness} cm</p>
+                      </div>
                     </div>
+                    {material.availableColors?.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs text-gray-500 mb-1">Available Colors:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {material.availableColors.map((color, idx) => (
+                            <span key={idx} className="w-6 h-6 rounded-full border shadow-sm" style={{ backgroundColor: color }} title={color}></span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -298,13 +389,13 @@ const MaterialLibrary = () => {
                 {isAdmin && (
                   <div className="mt-4 pt-3 border-t flex justify-end gap-2">
                     <button
-                      onClick={() => { setEditingMaterial(material); setFormData(material); setShowModal(true); }}
+                      onClick={(e) => { e.stopPropagation(); setEditingMaterial(material); setFormData(material); setShowModal(true); }}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDelete(material._id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(material._id); }}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                     >
                       <FaTrash />
@@ -320,7 +411,7 @@ const MaterialLibrary = () => {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{editingMaterial ? 'Edit Material' : 'Add New Material'}</h2>
               <button onClick={() => { setShowModal(false); resetForm(); }} className="text-gray-400 hover:text-gray-600">
@@ -347,11 +438,11 @@ const MaterialLibrary = () => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 >
-                  <option value="wool">Wool</option>
-                  <option value="silk">Silk</option>
-                  <option value="cotton">Cotton</option>
-                  <option value="polyester">Polyester</option>
-                  <option value="blend">Blend</option>
+                  <option value="wool">🧶 Wool</option>
+                  <option value="silk">✨ Silk</option>
+                  <option value="cotton">🌿 Cotton</option>
+                  <option value="polyester">🔧 Polyester</option>
+                  <option value="blend">🎨 Blend</option>
                 </select>
               </div>
               

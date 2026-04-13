@@ -14,7 +14,7 @@ import moment from 'moment';
 import VideoPlayer from '../components/VideoPlayer';
 import ImageModal from '../components/ImageModal';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 
 

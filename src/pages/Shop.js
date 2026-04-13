@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const Shop = ({ addToCart, cartItems }) => {
   const [products, setProducts] = useState([]);
@@ -333,7 +333,8 @@ const Shop = ({ addToCart, cartItems }) => {
                   <button onClick={clearFilters} className="mt-4 text-blue-600 hover:text-blue-800">Clear all filters</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
+
                   {filteredProducts.map(product => {
                     const store = stores.find(s => s._id === product.storeId);
                     return (

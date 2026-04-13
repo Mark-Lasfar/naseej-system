@@ -16,7 +16,7 @@ import {
   FaRegComment, FaThumbsUp, FaNewspaper
 } from 'react-icons/fa';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 // Animation variants
 const fadeInUp = {

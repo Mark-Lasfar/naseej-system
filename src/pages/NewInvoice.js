@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { FaTrash, FaPlus, FaSave, FaArrowLeft, FaPrint, FaUser, FaBox, FaMoneyBillWave, FaTag, FaTruck } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const NewInvoice = () => {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { FaPlus, FaUserPlus, FaEdit, FaTrash, FaSearch, FaDownload, FaEnvelope, FaPhone, FaMapMarkerAlt, FaCalendarAlt, FaHistory, FaShoppingBag } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { FaBank, FaPaypal, FaMobileAlt, FaPlus, FaEdit, FaTrash, FaMoneyBillWave } from 'react-icons/fa';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const SellerPayouts = () => {
   const [payoutMethods, setPayoutMethods] = useState([]);

@@ -6,10 +6,11 @@ import {
   FaTruck, FaCheckCircle, FaBox, FaClock, FaMapMarkerAlt, 
   FaShoppingCart, FaArrowLeft, FaEnvelope, FaPhone, FaPrint,
   FaSync, FaDownload, FaShare, FaWhatsapp, FaEnvelopeOpenText,
-  FaHistory, FaCalendarAlt, FaMoneyBillWave, FaTag, FaShippingFast
+  FaHistory, FaCalendarAlt, FaMoneyBillWave, FaTag, FaShippingFast,
+  FaBars, FaTimes
 } from 'react-icons/fa';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://naseej-backend.vercel.app/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const OrderTracking = () => {
   const { orderNumber: paramOrderNumber } = useParams();
@@ -205,30 +206,30 @@ Thank you for shopping with Naseej!
           <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
             <FaTruck className="text-blue-600 text-3xl" />
           </div>
-          <h1 className="text-2xl font-bold">Track Your Order</h1>
-          <p className="text-gray-500 mt-2">Enter your order number to track your shipment</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Track Your Order</h1>
+          <p className="text-gray-500 text-sm sm:text-base mt-2 px-4">Enter your order number to track your shipment</p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm p-8">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-8">
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
               placeholder="Enter order number (e.g., ORD-1234567890)"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
-              className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {loading ? <FaSync className="animate-spin" /> : <FaTruck />}
               {loading ? 'Searching...' : 'Track Order'}
             </button>
           </form>
           
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-xs sm:text-sm text-gray-500">
             <p>Example: ORD-1700000000000-123</p>
             <p className="mt-2">You can find your order number in the confirmation email or SMS.</p>
           </div>
@@ -241,52 +242,52 @@ Thank you for shopping with Naseej!
   const progressWidth = getProgressWidth();
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+    <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-4xl">
+      {/* Header - Responsive */}
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <button 
           onClick={() => navigate(-1)} 
-          className="text-gray-600 hover:text-gray-800 flex items-center gap-2"
+          className="text-gray-600 hover:text-gray-800 flex items-center gap-2 text-sm sm:text-base"
         >
-          <FaArrowLeft /> Back
+          <FaArrowLeft size={14} /> Back
         </button>
-        <h1 className="text-2xl font-bold">Track Your Order</h1>
+        <h1 className="text-xl sm:text-2xl font-bold">Track Your Order</h1>
         <div className="flex gap-2">
           {order && (
             <button
               onClick={refreshOrder}
               disabled={refreshing}
-              className="text-gray-600 hover:text-gray-800 flex items-center gap-1 text-sm"
+              className="text-gray-600 hover:text-gray-800 flex items-center gap-1 text-xs sm:text-sm"
             >
-              <FaSync className={refreshing ? 'animate-spin' : ''} /> Refresh
+              <FaSync className={refreshing ? 'animate-spin' : ''} size={12} /> Refresh
             </button>
           )}
           <button 
             onClick={handlePrint}
-            className="text-gray-600 hover:text-gray-800 flex items-center gap-1 text-sm"
+            className="text-gray-600 hover:text-gray-800 flex items-center gap-1 text-xs sm:text-sm"
           >
-            <FaPrint /> Print
+            <FaPrint size={12} /> Print
           </button>
         </div>
       </div>
 
       {/* Search Form (if accessed directly) */}
       {paramOrderNumber && (
-        <div className="mb-6 bg-gray-50 rounded-xl p-4">
-          <div className="flex flex-wrap gap-4">
+        <div className="mb-6 bg-gray-50 rounded-xl p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
               <input
                 type="text"
                 placeholder="Enter another order number"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
             </div>
             <button
               onClick={() => trackOrder()}
               disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
             >
               Track Another
             </button>
@@ -299,41 +300,41 @@ Thank you for shopping with Naseej!
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : order ? (
-        <div className="space-y-6">
-          {/* Order Header */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex flex-wrap justify-between items-start gap-4">
+        <div className="space-y-4 sm:space-y-6">
+          {/* Order Header - Responsive */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
               <div>
-                <p className="text-sm text-gray-500">Order Number</p>
-                <p className="font-mono font-bold text-xl">{order.orderNumber}</p>
-                <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                <p className="text-xs sm:text-sm text-gray-500">Order Number</p>
+                <p className="font-mono font-bold text-base sm:text-xl break-all">{order.orderNumber}</p>
+                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                   <FaCalendarAlt size={12} />
                   {formatDate(order.createdAt)}
                 </p>
               </div>
-              <div className="text-right">
-                <div className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(order.orderStatus)}`}>
+              <div className="sm:text-right">
+                <div className={`px-3 py-1 rounded-full text-xs sm:text-sm font-semibold inline-block ${getStatusColor(order.orderStatus)}`}>
                   {getStatusText(order.orderStatus)}
                 </div>
-                <p className="text-2xl font-bold mt-2 text-blue-600">{formatPrice(order.totalAmount)} EGP</p>
+                <p className="text-xl sm:text-2xl font-bold mt-2 text-blue-600">{formatPrice(order.totalAmount)} EGP</p>
               </div>
             </div>
             
             {order.trackingNumber && (
               <div className="mt-3 pt-3 border-t">
-                <p className="text-sm text-gray-500">Tracking Number</p>
-                <p className="font-mono font-semibold">{order.trackingNumber}</p>
+                <p className="text-xs sm:text-sm text-gray-500">Tracking Number</p>
+                <p className="font-mono font-semibold text-sm sm:text-base break-all">{order.trackingNumber}</p>
               </div>
             )}
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Bar - Responsive */}
           {order.orderStatus !== 'cancelled' && order.orderStatus !== 'refunded' && (
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
               <div className="mb-4">
-                <div className="flex justify-between mb-1">
+                <div className="grid grid-cols-5 gap-1 mb-2">
                   {progressSteps.map((step, idx) => (
-                    <div key={idx} className={`text-center text-xs ${step.active ? 'text-blue-600 font-semibold' : step.completed ? 'text-green-600' : 'text-gray-400'}`}>
+                    <div key={idx} className={`text-center text-[10px] sm:text-xs truncate ${step.active ? 'text-blue-600 font-semibold' : step.completed ? 'text-green-600' : 'text-gray-400'}`}>
                       {step.label}
                     </div>
                   ))}
@@ -348,28 +349,28 @@ Thank you for shopping with Naseej!
             </div>
           )}
 
-          {/* Tracking Timeline */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+          {/* Tracking Timeline - Responsive */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4 flex items-center gap-2">
               <FaHistory className="text-blue-600" />
               Tracking History
             </h3>
             {order.trackingHistory?.length > 0 ? (
               <div className="relative">
                 {order.trackingHistory.map((event, idx) => (
-                  <div key={idx} className="flex gap-4 mb-6 relative">
+                  <div key={idx} className="flex gap-3 mb-4 relative">
                     <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center z-10">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center z-10 flex-shrink-0">
                         {getStatusIcon(event.status)}
                       </div>
                       {idx < order.trackingHistory.length - 1 && (
-                        <div className="w-0.5 h-12 bg-gray-200 mt-2"></div>
+                        <div className="w-0.5 h-10 bg-gray-200 mt-1"></div>
                       )}
                     </div>
-                    <div className="flex-1 pb-6">
-                      <p className="font-semibold">{getStatusText(event.status)}</p>
-                      <p className="text-sm text-gray-600">{event.location}</p>
-                      {event.note && <p className="text-sm text-gray-500 mt-1 italic">"{event.note}"</p>}
+                    <div className="flex-1 pb-4">
+                      <p className="font-semibold text-sm sm:text-base">{getStatusText(event.status)}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 break-words">{event.location}</p>
+                      {event.note && <p className="text-xs text-gray-500 mt-1 italic break-words">"{event.note}"</p>}
                       <p className="text-xs text-gray-400 mt-1">
                         {formatDate(event.timestamp)}
                       </p>
@@ -378,118 +379,118 @@ Thank you for shopping with Naseej!
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">No tracking history available yet.</p>
+              <p className="text-gray-500 text-center py-4 text-sm">No tracking history available yet.</p>
             )}
           </div>
 
-          {/* Order Items */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          {/* Order Items - Responsive */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4 flex items-center gap-2">
               <FaShoppingCart className="text-blue-600" />
               Order Items
             </h3>
             <div className="space-y-3">
               {order.items?.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center border-b pb-3">
-                  <div>
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-2">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm sm:text-base break-words">{item.name}</p>
+                    <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
                   </div>
-                  <p className="font-semibold">{formatPrice(item.unitPrice * item.quantity)} EGP</p>
+                  <p className="font-semibold text-sm sm:text-base">{formatPrice(item.unitPrice * item.quantity)} EGP</p>
                 </div>
               ))}
             </div>
             
             <div className="mt-4 pt-4 border-t">
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span>Subtotal</span>
                 <span>{formatPrice(order.subtotal)} EGP</span>
               </div>
               {order.discount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-green-600 text-sm sm:text-base mt-1">
                   <span><FaTag className="inline mr-1" /> Discount</span>
                   <span>-{formatPrice(order.discount)} EGP</span>
                 </div>
               )}
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base mt-1">
                 <span><FaShippingFast className="inline mr-1" /> Shipping</span>
                 <span>{order.shippingCost === 0 ? 'Free' : `${formatPrice(order.shippingCost)} EGP`}</span>
               </div>
-              <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t">
+              <div className="flex justify-between font-bold text-base sm:text-lg mt-2 pt-2 border-t">
                 <span>Total</span>
                 <span className="text-blue-600">{formatPrice(order.totalAmount)} EGP</span>
               </div>
             </div>
           </div>
 
-          {/* Shipping Address */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          {/* Shipping Address - Responsive */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4 flex items-center gap-2">
               <FaMapMarkerAlt className="text-blue-600" />
               Shipping Address
             </h3>
-            <p>{order.shippingAddress?.street || 'N/A'}</p>
-            <p>{order.shippingAddress?.district || ''} {order.shippingAddress?.city || 'N/A'}</p>
-            <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">
-              <span className="flex items-center gap-1"><FaPhone /> {order.shippingAddress?.phone || 'N/A'}</span>
+            <p className="text-sm sm:text-base break-words">{order.shippingAddress?.street || 'N/A'}</p>
+            <p className="text-sm sm:text-base break-words">{order.shippingAddress?.district || ''} {order.shippingAddress?.city || 'N/A'}</p>
+            <div className="flex flex-wrap gap-3 mt-2 text-xs sm:text-sm text-gray-500">
+              <span className="flex items-center gap-1"><FaPhone size={12} /> {order.shippingAddress?.phone || 'N/A'}</span>
               {order.shippingAddress?.email && (
-                <span className="flex items-center gap-1"><FaEnvelope /> {order.shippingAddress.email}</span>
+                <span className="flex items-center gap-1"><FaEnvelope size={12} /> {order.shippingAddress.email}</span>
               )}
             </div>
             {order.shippingAddress?.notes && (
-              <p className="mt-2 text-sm text-gray-500 border-t pt-2">Notes: {order.shippingAddress.notes}</p>
+              <p className="mt-2 text-xs sm:text-sm text-gray-500 border-t pt-2 break-words">Notes: {order.shippingAddress.notes}</p>
             )}
           </div>
 
-          {/* Estimated Delivery */}
+          {/* Estimated Delivery - Responsive */}
           {order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled' && order.orderStatus !== 'refunded' && (
-            <div className="bg-blue-50 rounded-xl p-6 text-center">
-              <FaCalendarAlt className="text-blue-600 text-2xl mx-auto mb-2" />
-              <p className="text-gray-600">Estimated Delivery</p>
-              <p className="font-bold text-lg">
+            <div className="bg-blue-50 rounded-xl p-4 sm:p-6 text-center">
+              <FaCalendarAlt className="text-blue-600 text-xl sm:text-2xl mx-auto mb-2" />
+              <p className="text-gray-600 text-sm sm:text-base">Estimated Delivery</p>
+              <p className="font-bold text-base sm:text-lg">
                 {order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleDateString() : 'Within 5-7 business days'}
               </p>
             </div>
           )}
 
-          {/* Share Actions */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          {/* Share Actions - Responsive */}
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4 flex items-center gap-2">
               <FaShare className="text-blue-600" />
               Share Order
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
               <button
                 onClick={shareOrder}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm"
               >
-                <FaShare /> Share
+                <FaShare size={14} /> Share
               </button>
               <button
                 onClick={shareViaWhatsApp}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm"
               >
-                <FaWhatsapp /> WhatsApp
+                <FaWhatsapp size={14} /> WhatsApp
               </button>
               <button
                 onClick={shareViaEmail}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
               >
-                <FaEnvelopeOpenText /> Email
+                <FaEnvelopeOpenText size={14} /> Email
               </button>
               <button
                 onClick={downloadOrderDetails}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm"
               >
-                <FaDownload /> Download
+                <FaDownload size={14} /> Download
               </button>
             </div>
           </div>
 
-          {/* Need Help */}
-          <div className="bg-gray-50 rounded-xl p-6 text-center">
-            <p className="text-gray-600">Need help with your order?</p>
-            <p className="text-sm text-gray-500 mt-1">
+          {/* Need Help - Responsive */}
+          <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-center">
+            <p className="text-gray-600 text-sm sm:text-base">Need help with your order?</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1 break-words">
               Contact our customer support at <strong>support@naseej.com</strong> or call <strong>+20 123 456 789</strong>
             </p>
             <Link to="/shop" className="inline-block mt-4 text-blue-600 hover:text-blue-800 text-sm">
@@ -498,13 +499,13 @@ Thank you for shopping with Naseej!
           </div>
         </div>
       ) : searchAttempted && (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-          <div className="text-6xl mb-4">🔍</div>
-          <h2 className="text-xl font-bold mb-2">Order Not Found</h2>
-          <p className="text-gray-500 mb-6">We couldn't find an order with the number "{orderNumber}"</p>
+        <div className="bg-white rounded-xl shadow-sm p-8 sm:p-12 text-center">
+          <div className="text-5xl sm:text-6xl mb-4">🔍</div>
+          <h2 className="text-lg sm:text-xl font-bold mb-2">Order Not Found</h2>
+          <p className="text-gray-500 text-sm sm:text-base mb-6 break-words">We couldn't find an order with the number "{orderNumber}"</p>
           <button 
             onClick={() => setSearchAttempted(false)} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
           >
             Try Again
           </button>
