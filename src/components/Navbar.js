@@ -1,15 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   FaHome, FaBox, FaUsers, FaFileInvoice, FaSignOutAlt, FaUser, 
   FaShoppingCart, FaTruck, FaStore, FaListAlt, FaMoneyBillWave,
   FaStoreAlt, FaHeart, FaCog, FaChartLine, FaNewspaper,
-  FaSignInAlt, FaComments, FaBars, FaTimes,FaPlug,FaIndustry
+  FaSignInAlt, FaComments, FaBars, FaTimes, FaPlug, FaIndustry
 } from 'react-icons/fa';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL || 'https://mgzon-naseej-backend.hf.space/api';
 
 const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+
+  // ✅ جلب عدد الرسائل غير المقروءة
+  useEffect(() => {
+    if (!user) {
+      setUnreadMessagesCount(0);
+      return;
+    }
+
+    const fetchUnreadCount = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get(`${API_URL}/chat/unread-count`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        setUnreadMessagesCount(response.data.unreadCount || 0);
+      } catch (error) {
+        console.error('Failed to fetch unread count:', error);
+      }
+    };
+
+    // جلب العدد فوراً
+    fetchUnreadCount();
+
+    // ✅ تحديث العدد كل 30 ثانية (خلفية)
+    const interval = setInterval(fetchUnreadCount, 30000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   // روابط عامة (تظهر للجميع - حتى غير المسجلين)
   const publicNavItems = [
@@ -21,10 +56,8 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
   const privateNavItems = [
     { path: '/', label: 'Home', icon: <FaHome /> },
     { path: '/feed', label: 'Feed', icon: <FaNewspaper /> },
-    { path: '/chat', label: 'Messages', icon: <FaComments /> },
+    { path: '/chat', label: 'Messages', icon: <FaComments />, badge: unreadMessagesCount },
     { path: '/my-orders', label: 'My Orders', icon: <FaListAlt /> },
-
-
   ];
 
   // روابط للمدير فقط (Admin)
@@ -36,7 +69,6 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
     { path: '/admin-orders', label: 'Orders Mgmt', icon: <FaListAlt /> },
     { path: '/design-studio', label: 'AI Design', icon: <FaCog /> },
     { path: '/production-partner', label: 'Production', icon: <FaIndustry /> },
-
     { path: '/material-library', label: 'Materials', icon: <FaBox /> },
   ];
 
@@ -46,14 +78,13 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
     { path: '/seller/products', label: 'My Products', icon: <FaBox /> },
     { path: '/seller/orders', label: 'Store Orders', icon: <FaListAlt /> },
     { path: '/seller/payouts', label: 'Payouts', icon: <FaMoneyBillWave /> },
-    { path: '/seller/profit-analytics', label: 'Profit Analytics', icon: <FaChartLine /> }, // ✅ أضف هذا
+    { path: '/seller/profit-analytics', label: 'Profit Analytics', icon: <FaChartLine /> },
     { path: '/seller/integrations', label: 'Integrations', icon: <FaPlug /> },
     { path: '/seller/store-settings', label: 'Store Settings', icon: <FaCog /> },
   ];
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
-  // إغلاق القائمة عند النقر على رابط
   const handleLinkClick = () => {
     setIsMobileMenuOpen(false);
   };
@@ -77,9 +108,8 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
             </div>
           </Link>
 
-          {/* Desktop Navigation - يظهر فقط على الشاشات الكبيرة */}
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex gap-4">
-            {/* Public Links */}
             {publicNavItems.map((item) => (
               <Link
                 key={item.path}
@@ -100,7 +130,7 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg transition ${
                   isActive(item.path)
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-100'
@@ -108,6 +138,12 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
               >
                 {item.icon}
                 <span>{item.label}</span>
+                {/* ✅ عرض العداد على أيقونة الرسائل */}
+                {item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
               </Link>
             ))}
             
@@ -203,7 +239,7 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
               </button>
             )}
 
-            {/* Mobile Menu Button - Hamburger Icon */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition"
@@ -213,11 +249,10 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
           </div>
         </div>
 
-        {/* Mobile Menu - يظهر عند الضغط على الـ Hamburger */}
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-4 border-t bg-white">
             <div className="flex flex-col space-y-2">
-              {/* Public Links */}
               <div className="text-xs text-gray-400 px-3 pt-2">MAIN MENU</div>
               {publicNavItems.map((item) => (
                 <Link
@@ -235,7 +270,6 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                 </Link>
               ))}
               
-              {/* Private Links (للمستخدمين المسجلين فقط) */}
               {user && (
                 <>
                   <div className="text-xs text-gray-400 px-3 pt-4">PERSONAL</div>
@@ -244,7 +278,7 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                       key={item.path}
                       to={item.path}
                       onClick={handleLinkClick}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                      className={`relative flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                         isActive(item.path)
                           ? 'bg-blue-50 text-blue-600'
                           : 'text-gray-700 hover:bg-gray-50'
@@ -252,12 +286,16 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                     >
                       <span className="text-lg">{item.icon}</span>
                       <span>{item.label}</span>
+                      {item.badge > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </>
               )}
               
-              {/* Seller Links */}
               {user && (user?.role === 'seller' || user?.role === 'admin') && (
                 <>
                   <div className="text-xs text-gray-400 px-3 pt-4">SELLER</div>
@@ -275,7 +313,6 @@ const Navbar = ({ user, onLogout, onLogin, cartCount }) => {
                 </>
               )}
               
-              {/* Admin Links */}
               {user?.role === 'admin' && (
                 <>
                   <div className="text-xs text-gray-400 px-3 pt-4">ADMIN</div>

@@ -19,7 +19,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const DesignStudio = ({ addToCart }) => {
   const navigate = useNavigate();
-  
+
   // ================ State Variables ================
   const [loading, setLoading] = useState(false);
   const [design, setDesign] = useState(null);
@@ -37,7 +37,7 @@ const DesignStudio = ({ addToCart }) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [favoriteDesigns, setFavoriteDesigns] = useState([]);
   const previewContainerRef = useRef(null);
-  
+
   // ================ Design Inputs ================
   const [designInputs, setDesignInputs] = useState({
     dimensions: { width: 200, height: 300 },
@@ -197,10 +197,10 @@ const DesignStudio = ({ addToCart }) => {
       toast.error('No design to add to cart');
       return;
     }
-    
+
     const designId = design.design?._id || design._id;
     const designData = design.design || design;
-    
+
     const cartItem = {
       id: designId,
       productId: designId,
@@ -214,7 +214,7 @@ const DesignStudio = ({ addToCart }) => {
       pattern: designData.pattern?.type,
       complexity: designData.pattern?.complexity
     };
-    
+
     if (addToCart) {
       addToCart(cartItem);
       toast.success('Custom design added to cart!');
@@ -325,18 +325,18 @@ const DesignStudio = ({ addToCart }) => {
 
   const handleDownloadHighResImage = async () => {
     if (!design) return;
-    
+
     const designId = design.design?._id || design._id;
     const token = localStorage.getItem('token');
-    
+
     setDownloading(true);
     try {
       const response = await fetch(`${API_URL}/designs/${designId}/image`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (!response.ok) throw new Error('Failed to download image');
-      
+
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -346,7 +346,7 @@ const DesignStudio = ({ addToCart }) => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       toast.success('High-resolution carpet image downloaded');
     } catch (error) {
       toast.error('Failed to download image');
@@ -386,7 +386,7 @@ const DesignStudio = ({ addToCart }) => {
 
     setDownloading(true);
     const formats = ['gcode', 'python', 'dst', 'emb'];
-    
+
     toast.loading('Preparing all formats for download...', { id: 'download-all' });
 
     for (const format of formats) {
@@ -429,12 +429,75 @@ const DesignStudio = ({ addToCart }) => {
     }
   };
 
+
+
+  // ================ Download High Resolution PNG ================
+  const handleDownloadHighResPNG = async () => {
+    if (!previewUrl) {
+      toast.error('No preview image available');
+      return;
+    }
+
+    setDownloading(true);
+    toast.loading('Preparing high-resolution image...', { id: 'download-png' });
+
+    try {
+      // إذا كانت الصورة من FAL.AI (URL خارجي)
+      if (previewUrl.startsWith('http')) {
+        console.log('📥 Downloading image from URL:', previewUrl.substring(0, 100));
+
+        const response = await fetch(previewUrl, {
+          mode: 'cors',
+          headers: {
+            'Accept': 'image/png,image/jpeg,image/webp,*/*'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `carpet_design_4k_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast.success('4K High-resolution carpet image downloaded!', { id: 'download-png' });
+      }
+      else if (previewUrl.startsWith('data:image')) {
+        // إذا كانت الصورة Base64
+        const link = document.createElement('a');
+        link.href = previewUrl;
+        link.download = `carpet_design_${Date.now()}.png`;
+        link.click();
+        toast.success('Design image downloaded (PNG format)', { id: 'download-png' });
+      }
+      else {
+        // إذا كانت SVG من fallback
+        const link = document.createElement('a');
+        link.href = previewUrl;
+        link.download = `carpet_design_${Date.now()}.svg`;
+        link.click();
+        toast.success('Design image downloaded (SVG format - scalable)', { id: 'download-png' });
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error(`Failed to download image: ${error.message}`, { id: 'download-png' });
+    } finally {
+      setDownloading(false);
+    }
+  };
   // ================ UI Functions ================
   const toggleFullscreen = () => {
     try {
       const elem = previewContainerRef.current;
       if (!elem) return;
-      
+
       if (!isFullscreen) {
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -598,19 +661,17 @@ const DesignStudio = ({ addToCart }) => {
             <div className="flex gap-2 bg-white/10 p-1 rounded-xl backdrop-blur-sm">
               <button
                 onClick={() => setActiveTab('parameters')}
-                className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
-                  activeTab === 'parameters' ? 'bg-white text-blue-900 shadow-lg' : 'text-white/80 hover:text-white'
-                }`}
+                className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === 'parameters' ? 'bg-white text-blue-900 shadow-lg' : 'text-white/80 hover:text-white'
+                  }`}
               >
                 <FaRobot /> New Design
               </button>
               <button
                 onClick={() => setActiveTab('library')}
-                className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
-                  activeTab === 'library' ? 'bg-white text-blue-900 shadow-lg' : 'text-white/80 hover:text-white'
-                }`}
+                className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${activeTab === 'library' ? 'bg-white text-blue-900 shadow-lg' : 'text-white/80 hover:text-white'
+                  }`}
               >
-                <FaSave /> My Designs 
+                <FaSave /> My Designs
                 {designsList.length > 0 && (
                   <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
                     {designsList.length}
@@ -633,7 +694,7 @@ const DesignStudio = ({ addToCart }) => {
                 </h2>
                 <p className="text-white/80 text-sm">Customize your carpet design</p>
               </div>
-              
+
               <div className="p-6 space-y-6">
                 {/* Dimensions */}
                 <div>
@@ -753,11 +814,10 @@ const DesignStudio = ({ addToCart }) => {
                           ...designInputs,
                           pattern: { ...designInputs.pattern, type: option.value }
                         })}
-                        className={`p-3 rounded-xl border-2 transition-all ${
-                          designInputs.pattern.type === option.value
+                        className={`p-3 rounded-xl border-2 transition-all ${designInputs.pattern.type === option.value
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <div className="text-2xl mb-1">{option.icon}</div>
                         <div className="font-medium text-sm">{option.label}</div>
@@ -797,11 +857,10 @@ const DesignStudio = ({ addToCart }) => {
                           ...designInputs,
                           material: { ...designInputs.material, type: option.value }
                         })}
-                        className={`p-3 rounded-xl border-2 transition-all text-left ${
-                          designInputs.material.type === option.value
+                        className={`p-3 rounded-xl border-2 transition-all text-left ${designInputs.material.type === option.value
                             ? 'border-amber-500 bg-amber-50'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <div className="text-xl mb-1">{option.icon}</div>
                         <div className="font-medium text-sm">{option.label}</div>
@@ -879,11 +938,10 @@ const DesignStudio = ({ addToCart }) => {
                       <button
                         key={opt.value}
                         onClick={() => setSelectedFormat(opt.value)}
-                        className={`p-3 rounded-xl border-2 transition-all ${
-                          selectedFormat === opt.value
+                        className={`p-3 rounded-xl border-2 transition-all ${selectedFormat === opt.value
                             ? 'border-orange-500 bg-orange-50'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <div className="font-medium">{opt.label}</div>
                         <div className="text-xs text-gray-400">{opt.desc}</div>
@@ -981,6 +1039,17 @@ const DesignStudio = ({ addToCart }) => {
                       <button onClick={handleSaveDesign} disabled={saving} className="bg-blue-600 text-white py-3 rounded-xl"><FaSave /> {saving ? 'Saving...' : 'Save'}</button>
                       <button onClick={handleSaveToProducts} disabled={saving} className="bg-purple-600 text-white py-3 rounded-xl"><FaCheckCircle /> Save as Product</button>
                       <button onClick={() => handleDownloadDesign(selectedFormat)} disabled={downloading} className="bg-green-600 text-white py-3 rounded-xl"><FaDownload /> Download</button>
+
+                      <button
+                        onClick={handleDownloadHighResPNG}
+                        disabled={downloading}
+                        className="bg-pink-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-pink-700 transition disabled:opacity-50"
+                      >
+                        {downloading ? <FaSpinner className="animate-spin" /> : <FaImage />}
+                        Download 4K PNG
+                      </button>
+
+
                       <button onClick={handleDownloadHighResImage} disabled={downloading} className="bg-indigo-600 text-white py-3 rounded-xl"><FaImage /> High-Res</button>
                       <button onClick={handleDownloadAllFormats} disabled={downloading} className="bg-orange-600 text-white py-3 rounded-xl"><FaFileArchive /> All Formats</button>
                       <button onClick={handleSendToMachine} className="bg-red-600 text-white py-3 rounded-xl"><FaWrench /> Send to Machine</button>
