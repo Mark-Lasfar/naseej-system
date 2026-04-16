@@ -1,0 +1,42 @@
+flowchart TB
+    subgraph Client["Client Side (React)"]
+        A[User] --> B[ChatBubble Component]
+        B --> C[Floating Button]
+        B --> D[Chat Window]
+        D --> E[Sidebar]
+        D --> F[Conversation View]
+        F --> G[Message List]
+        F --> H[Input Area]
+        H --> I[Text Input]
+        H --> J[Voice Recorder]
+        H --> K[Emoji Picker]
+    end
+
+    subgraph Services["External Services"]
+        L[Socket.IO Server<br/>Hugging Face]
+        M[REST API<br/>Main Backend]
+        N[MongoDB<br/>Database]
+        O[Cloudinary<br/>File Storage]
+    end
+
+    subgraph Events["Real-time Events"]
+        P[new_message]
+        Q[typing]
+        R[message_read]
+        S[user_online]
+        T[user_offline]
+    end
+
+    B --> L
+    L --> P
+    L --> Q
+    L --> R
+    L --> S
+    L --> T
+    
+    F --> M
+    M --> N
+    M --> O
+    
+    H --> L
+    J --> O

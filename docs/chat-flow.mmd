@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant UA as User A (Sender)
+    participant CB as ChatBubble
+    participant SC as Socket Client
+    participant SS as Socket Server
+    participant API as REST API
+    participant DB as Database
+    participant UB as User B (Receiver)
+
+    Note over UA,UB: Message Sending Flow
+    
+    UA->>CB: Types message & clicks send
+    CB->>CB: Validates input
+    CB->>SC: Emits 'send_message' event
+    
+    SC->>SS: WebSocket emission
+    SS->>API: POST /api/chat/messages
+    API->>DB: Save message
+    DB-->>API: Message saved
+    API-->>SS: Return message object
+    
+    SS->>SC: Broadcast 'new_message'
+    SC->>CB: Update message list
+    CB->>UA: Display message (optimistic)
+    
+    SS->>UB: Forward 'new_message'
+    UB->>UB: Display message
+    
+    Note over UA,UB: Read Receipt Flow
+    
+    UB->>CB: Opens conversation
+    CB->>SC: Emit 'message_read'
+    SC->>SS: Forward read receipt
+    SS->>UA: Notify message read
+    UA->>UA: Update status to 'read'

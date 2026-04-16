@@ -1,0 +1,42 @@
+erDiagram
+    USER ||--o{ CONVERSATION : participates
+    USER ||--o{ MESSAGE : sends
+    USER ||--o{ MESSAGE : receives
+    
+    CONVERSATION ||--o{ MESSAGE : contains
+    
+    CONVERSATION {
+        ObjectId _id PK
+        Array participants
+        Object lastMessage
+        Number unreadCount
+        Object settings
+        Date createdAt
+        Date updatedAt
+    }
+    
+    MESSAGE {
+        ObjectId _id PK
+        ObjectId conversationId FK
+        ObjectId senderId FK
+        ObjectId receiverId FK
+        String text
+        String type
+        String mediaUrl
+        Number duration
+        Boolean isRead
+        Date readAt
+        ObjectId replyTo
+        Boolean isEdited
+        Boolean isDeleted
+        Date createdAt
+    }
+    
+    USER {
+        ObjectId _id PK
+        String username
+        String email
+        String avatar
+        Boolean isOnline
+        Date lastSeen
+    }

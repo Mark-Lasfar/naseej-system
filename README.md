@@ -140,6 +140,34 @@ The project is configured for easy deployment on platforms like **Vercel** (for 
 - **Community-Driven:** The social features build a community around your brand and sellers.
 - **Future-Ready:** Integrates AI for design and IoT for manufacturing.
 
+
+
+
+## 📚 Documentation & System Architecture
+
+<div align="center">
+  <a href="https://github.com/Mark-Lasfar/naseej-system/tree/main/docs">
+    <img width="600" alt="Chat System Architecture" src="https://github.com/user-attachments/assets/c17e6230-449d-4440-aeea-87e17c8a0dfc" />
+  </a>
+  <p><em>📸 Real-time Chat System Architecture (Click image for full documentation)</em></p>
+</div>
+
+### 📖 Technical Documentation
+
+For complete system documentation including architecture diagrams, sequence flows, database schemas, and deployment guides, please visit the **[Documentation Section](https://github.com/Mark-Lasfar/naseej-system/tree/main/docs)**.
+
+| Document Type | Description |
+|---------------|-------------|
+| 🏗️ **Architecture** | System component diagrams and interactions |
+| 🔄 **Message Flow** | Sequence diagrams for message delivery |
+| 💾 **Database Schema** | Complete data models and relationships |
+| 🔌 **Socket.IO** | WebSocket connection lifecycle |
+| 📋 **Features** | Complete feature inventory |
+| 🚀 **Deployment** | Step-by-step deployment instructions |
+
+> **Access:** The full documentation is available in the `/docs` directory of the repository. Clone the repository or view it directly on GitHub.
+
+
 ## 🤝 Contributing
 
 We welcome contributions to enhance the Naseej platform. If you'd like to contribute, please:

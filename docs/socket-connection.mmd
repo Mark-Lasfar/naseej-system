@@ -1,0 +1,39 @@
+flowchart TB
+    subgraph Connection["Socket.IO Connection Lifecycle"]
+        A[Client Initializes] --> B{Has Token?}
+        B -->|No| C[❌ Connection Failed]
+        B -->|Yes| D[Authenticate with Token]
+        D --> E{Valid Token?}
+        E -->|No| C
+        E -->|Yes| F[✅ Connection Established]
+        
+        F --> G[Join User Room]
+        G --> H[Join Conversation Rooms]
+        
+        H --> I[Ready for Events]
+        
+        I --> J[Send Message]
+        I --> K[Receive Message]
+        I --> L[Typing Indicator]
+        I --> M[Read Receipt]
+        
+        J --> N[Emit 'send_message']
+        K --> O[Receive 'new_message']
+        L --> P[Emit/Receive 'typing']
+        M --> Q[Emit/Receive 'message_read']
+        
+        N --> R[Server Processes]
+        O --> R
+        P --> R
+        Q --> R
+        
+        R --> S[Store in Database]
+        R --> T[Broadcast to Recipient]
+    end
+
+    subgraph Reconnection["Reconnection Strategy"]
+        U[Disconnect] --> V{Reconnect?}
+        V -->|Yes| W[Delay 1s]
+        W --> D
+        V -->|No| X[End Session]
+    end

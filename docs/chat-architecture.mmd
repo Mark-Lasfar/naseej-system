@@ -1,0 +1,35 @@
+
+flowchart LR
+    subgraph Frontend["Frontend Layer"]
+        direction TB
+        UI[User Interface]
+        CB[ChatBubble]
+        MS[Message Store]
+        SC[Socket Client]
+    end
+
+    subgraph Backend["Backend Layer"]
+        direction TB
+        API[REST API<br/>:5000]
+        WS[WebSocket Server<br/>:4000]
+        AUTH[Auth Service]
+    end
+
+    subgraph Database["Data Layer"]
+        direction TB
+        MDB[(MongoDB)]
+        CLOUD[(Cloudinary)]
+        CACHE[(Redis Cache)]
+    end
+
+    UI --> CB
+    CB --> SC
+    CB --> MS
+    
+    SC <--> WS
+    MS <--> API
+    
+    API --> AUTH
+    API --> MDB
+    API --> CLOUD
+    WS --> CACHE
