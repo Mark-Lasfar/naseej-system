@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "**",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
@@ -19,7 +19,19 @@
       "dest": "/manifest.json"
     },
     {
-      "src": "/(.*)\\.(ico|svg|png|jpg|jpeg|gif|webp|avif|css|js|json|woff|woff2|ttf|eot|map)",
+      "src": "/logo-icon.svg",
+      "dest": "/logo-icon.svg"
+    },
+    {
+      "src": "/logo192.png",
+      "dest": "/logo192.png"
+    },
+    {
+      "src": "/logo512.png",
+      "dest": "/logo512.png"
+    },
+    {
+      "src": "/(.*)\\.(css|js|json|png|jpg|jpeg|gif|svg|ico|webp|avif|woff|woff2|ttf|eot|map)$",
       "dest": "/$1.$2"
     },
     {
