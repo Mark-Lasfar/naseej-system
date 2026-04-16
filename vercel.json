@@ -1,9 +1,26 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "**",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/static/(.*)",
       "dest": "/static/$1"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/(.*)\\.(ico|svg|png|jpg|jpeg|gif|webp|avif|css|js|json|woff|woff2|ttf|eot|map)",
+      "dest": "/$1.$2"
     },
     {
       "src": "/(.*)",
